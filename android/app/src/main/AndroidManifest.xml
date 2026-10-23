@@ -24,6 +24,17 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Receives the Supabase email-confirmation link
+                 (loqta://auth/confirm). BROWSABLE is required for a link
+                 tapped inside a mail app to resolve to this app; DEFAULT
+                 covers delivery while Loqta is already running. Only the
+                 scheme is matched, so every loqta:// path is routed here. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="loqta"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

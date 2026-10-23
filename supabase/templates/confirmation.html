@@ -1,0 +1,17 @@
+<html>
+  <body>
+    <h2>Confirm your email address</h2>
+    <p>Follow the link below to confirm this email address and finish signing up.</p>
+    <p><a href="{{ .ConfirmationURL }}">Confirm email address</a></p>
+
+    <!--
+      The Loqta signup screen asks for a six-digit code, so the code has to be
+      visible in this email. `{{ .Token }}` is the Supabase-generated OTP for
+      this confirmation (it is the same value the `signup` OTP type verifies);
+      the app redeems it with verifyOTP(type: signup). Nothing is hardcoded.
+    -->
+    <p>Your verification code is:</p>
+    <p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">{{ .Token }}</p>
+    <p>The code expires shortly. If you did not create a Loqta account, you can ignore this email.</p>
+  </body>
+</html>
