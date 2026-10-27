@@ -13,6 +13,18 @@ class SearchListingsUseCase {
 
   final ListingRepository _repository;
 
-  Future<ListingPage> call({required String query, required int offset}) =>
-      _repository.search(query: query, offset: offset, limit: pageSize);
+  Future<ListingPage> call({
+    required String query,
+    required int offset,
+    String? listingType,
+    String? governorate,
+    String? category,
+  }) => _repository.search(
+    query: query,
+    offset: offset,
+    limit: pageSize,
+    listingType: listingType,
+    governorate: governorate,
+    category: category,
+  );
 }

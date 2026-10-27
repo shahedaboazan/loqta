@@ -67,9 +67,14 @@ class ChatRemoteDataSource {
     return id;
   }
 
-  Future<List<Conversation>> fetchConversations() async {
+  Future<List<Conversation>> fetchConversations({String? listingId}) async {
     _currentUserId;
-    final rows = await _client.rpc('my_conversations');
+    // If listingId is provided, the RPC needs to filter by it
+    // Check if my_conversations RPC supports arguments
+    final rows = await _client.rpc(
+      'my_conversations',
+      params: listingId != null ? {'p_listing_id': listingId} : {},
+    );
     return ConversationModel.fromRows(rows ?? const []);
   }
 

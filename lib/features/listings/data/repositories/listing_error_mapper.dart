@@ -20,6 +20,14 @@ class ListingErrorMapper {
         '42501' => 'You do not have permission to do that.',
         'PGRST116' || 'P0002' => 'That item is no longer available.',
         '23505' => 'That item is already saved.',
+        // The CHECK constraints on `listings` (title length, price versus
+        // listing type, currency code, photo count) — the form's own
+        // validation is more specific, so this only appears if the two
+        // disagree.
+        '23514' =>
+          'Some listing details were rejected. Check the form and try again.',
+        // `listings.seller_id` points at a profile row that is not there yet.
+        '23503' => 'Your account is not ready to publish a listing yet.',
         '429' || 'PGRST122' => 'Too many requests. Please try again shortly.',
         _ => _messageOr(
           error.message,
@@ -28,8 +36,25 @@ class ListingErrorMapper {
       };
     }
 
+    if (error is StorageException) {
+      return _messageOr(
+        error.message,
+        'The photos could not be uploaded. Check your connection and try again.',
+      );
+    }
+
     if (error is SocketException) {
       return 'Network error. Check your connection and try again.';
+    }
+
+    // The data layer raises StateError with copy that is already safe to show
+    // ("A photo could not be uploaded."); `toString()` would prefix it with
+    // "Bad state:", so the message is taken directly.
+    if (error is StateError) {
+      return _messageOr(
+        error.message,
+        'Something went wrong. Please try again.',
+      );
     }
 
     return _messageOr(

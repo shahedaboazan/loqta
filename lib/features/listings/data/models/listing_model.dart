@@ -42,6 +42,8 @@ class ListingModel {
       condition: row['condition'] as String? ?? '',
       type: ListingType.fromValue(row['listing_type'] as String?),
       price: _toDouble(row['price']),
+      currency: row['currency'] as String?,
+      deliveryAvailable: row['delivery_available'] as bool?,
       imageUrls: images is List
           ? images.map((value) => value.toString()).toList()
           : const <String>[],

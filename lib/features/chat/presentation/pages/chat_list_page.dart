@@ -17,7 +17,9 @@ import 'package:loqta/features/chat/presentation/pages/chat_page.dart';
 /// Opening a row only navigates to that existing conversation; nothing here
 /// creates one.
 class ChatListPage extends StatelessWidget {
-  const ChatListPage({super.key});
+  const ChatListPage({super.key, this.listingId});
+
+  final String? listingId;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,11 @@ class ChatListPage extends StatelessWidget {
         return ConversationsBloc(
           getConversations: GetConversationsUseCase(repository),
           chatRepository: repository,
-        )..add(const ConversationsRequested());
+        )..add(
+            listingId != null
+                ? ConversationsRequested(listingId: listingId)
+                : const ConversationsRequested(),
+          );
       },
       child: const ChatListView(),
     );

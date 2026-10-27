@@ -112,7 +112,7 @@ class _HomeScaffold extends StatelessWidget {
                               // The approved design has no filtered browse
                               // screen, so the card opens Search rather than
                               // inventing one.
-                              onTap: () => _openSearch(context),
+                              onTap: () => _push(context, const SearchPage(initialQuery: '', listingType: 'sale')),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -125,7 +125,7 @@ class _HomeScaffold extends StatelessWidget {
                               accent: LoqtaColors.accentCyan,
                               background: const Color(0xFFEFF8FB),
                               borderColor: const Color(0xFFD3EAF2),
-                              onTap: () => _openSearch(context),
+                              onTap: () => _push(context, const SearchPage(initialQuery: '', listingType: 'donation')),
                             ),
                           ),
                         ],
@@ -147,8 +147,10 @@ class _HomeScaffold extends StatelessWidget {
             ),
             SliverToBoxAdapter(
               child: HomeCategoryStrip(
-                onSelected: (label) =>
-                    _notifyNotAvailable(context, 'The $label category'),
+                onSelected: (label) => _push(
+                  context,
+                  SearchPage(initialQuery: '', category: label),
+                ),
               ),
             ),
             SliverPadding(

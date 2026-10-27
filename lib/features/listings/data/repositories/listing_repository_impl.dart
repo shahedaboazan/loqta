@@ -1,6 +1,7 @@
 import 'package:loqta/features/listings/data/datasources/listing_remote_data_source.dart';
 import 'package:loqta/features/listings/data/repositories/listing_error_mapper.dart';
 import 'package:loqta/features/listings/domain/entities/listing.dart';
+import 'package:loqta/features/listings/domain/entities/listing_draft.dart';
 import 'package:loqta/features/listings/domain/entities/listing_page.dart';
 import 'package:loqta/features/listings/domain/errors/listing_failure.dart';
 import 'package:loqta/features/listings/domain/repositories/listing_repository.dart';
@@ -19,13 +20,31 @@ class ListingRepositoryImpl implements ListingRepository {
     required String query,
     required int offset,
     int limit = 4,
+    String? listingType,
+    String? governorate,
+    String? category,
   }) => _guard(
-    () => _dataSource.search(query: query, offset: offset, limit: limit),
+    () => _dataSource.search(
+      query: query,
+      offset: offset,
+      limit: limit,
+      listingType: listingType,
+      governorate: governorate,
+      category: category,
+    ),
   );
 
   @override
   Future<Listing> fetchById(String id) =>
       _guard(() => _dataSource.fetchById(id));
+
+  @override
+  Future<List<Listing>> fetchBySellerId(String sellerId) =>
+      _guard(() => _dataSource.fetchBySellerId(sellerId));
+
+  @override
+  Future<String> publish(ListingDraft draft, {required String publishId}) =>
+      _guard(() => _dataSource.publish(draft, publishId: publishId));
 
   Future<T> _guard<T>(Future<T> Function() body) async {
     try {

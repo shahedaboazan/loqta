@@ -37,11 +37,17 @@ class SearchSuccess extends SearchState {
     required this.query,
     required this.listings,
     required this.total,
+    this.listingType,
+    this.governorate,
+    this.category,
     this.isLoadingMore = false,
     this.actionError,
   });
 
   final String query;
+  final String? listingType;
+  final String? governorate;
+  final String? category;
   final List<Listing> listings;
   final int total;
   final bool isLoadingMore;
@@ -66,6 +72,9 @@ class SearchSuccess extends SearchState {
   }) {
     return SearchSuccess(
       query: query,
+      listingType: listingType,
+      governorate: governorate,
+      category: category,
       listings: listings ?? this.listings,
       total: total,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -76,6 +85,9 @@ class SearchSuccess extends SearchState {
   @override
   List<Object?> get props => [
     query,
+    listingType,
+    governorate,
+    category,
     listings,
     total,
     isLoadingMore,
@@ -116,12 +128,15 @@ sealed class SearchEvent extends Equatable {
 
 /// Runs [query] as a fresh search, discarding any previous results.
 class SearchSubmitted extends SearchEvent {
-  const SearchSubmitted(this.query);
+  const SearchSubmitted(this.query, {this.listingType, this.governorate, this.category});
 
   final String query;
+  final String? listingType;
+  final String? governorate;
+  final String? category;
 
   @override
-  List<Object?> get props => [query];
+  List<Object?> get props => [query, listingType, governorate, category];
 }
 
 /// Clears the keyword and the results.
@@ -170,8 +185,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     Emitter<SearchState> emit,
   ) async {
     final query = event.query.trim();
+    final listingType = event.listingType;
+    final governorate = event.governorate;
+    final category = event.category;
 
-    if (query.isEmpty) {
+    if (query.isEmpty && (listingType == null || listingType == 'all') && (governorate == null || governorate == 'all') && (category == null || category == 'all')) {
       emit(const SearchIdle());
       return;
     }
@@ -182,7 +200,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(SearchInProgress(query));
 
     try {
-      final page = await _searchListings(query: query, offset: 0);
+      final page = await _searchListings(
+        query: query,
+        offset: 0,
+        listingType: listingType,
+        governorate: governorate,
+        category: category,
+      );
 
       if (page.isEmpty) {
         emit(SearchEmpty(query));
@@ -190,7 +214,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
 
       emit(
-        SearchSuccess(query: query, listings: page.items, total: page.total),
+        SearchSuccess(
+          query: query,
+          listingType: listingType,
+          governorate: governorate,
+          category: category,
+          listings: page.items,
+          total: page.total,
+        ),
       );
     } on ListingFailure catch (failure) {
       emit(SearchFailureState(query, failure.message));
@@ -229,6 +260,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final page = await _searchListings(
         query: current.query,
         offset: current.loadedCount,
+        listingType: current.listingType,
+        governorate: current.governorate,
+        category: current.category,
       );
 
       // The keyword may have changed while the request was in flight; drop the
@@ -243,6 +277,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       emit(
         SearchSuccess(
           query: current.query,
+          listingType: current.listingType,
+          governorate: current.governorate,
+          category: current.category,
           listings: [...current.listings, ...page.items],
           total: page.total,
         ),

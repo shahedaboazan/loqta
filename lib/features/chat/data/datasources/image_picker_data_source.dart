@@ -22,6 +22,9 @@ class ImagePickerDataSource implements ImagePickerService {
   /// uploading one would make the send slow on a mobile connection.
   static const double _maxEdge = 1920;
 
+  /// Ceiling on a multi-select, mirroring the Create Listing photo limit.
+  static const int _maxImages = 5;
+
   @override
   Future<PickedImage?> pickImage() async {
     final XFile? file;
@@ -48,11 +51,62 @@ class ImagePickerDataSource implements ImagePickerService {
     // Cancelled: the user closed the picker without choosing anything.
     if (file == null) return null;
 
-    final bytes = await file.readAsBytes();
+    return _read(file);
+  }
+
+  @override
+  Future<List<PickedImage>> pickImages() async {
+    final List<XFile> files;
+    try {
+      files = await _picker.pickMultiImage(
+        maxWidth: _maxEdge,
+        maxHeight: _maxEdge,
+        imageQuality: 85,
+        // The design allows one to five photographs, and the plugin refuses to
+        // hand over more than asked of it, so the ceiling lives here and the
+        // form can still guard with the same number.
+        limit: _maxImages,
+      );
+    } on PlatformException catch (error) {
+      throw ImagePickException(_messageFor(error));
+    } on MissingPluginException {
+      throw const ImagePickException(
+        'Photos are not available on this platform.',
+      );
+    } catch (_) {
+      throw const ImagePickException(
+        'Photos could not be opened on this device.',
+      );
+    }
+
+    // Cancelled: an empty selection, not a failure.
+    if (files.isEmpty) return const <PickedImage>[];
+
+    final images = <PickedImage>[];
+    for (final file in files) {
+      try {
+        images.add(await _read(file));
+      } on ImagePickException {
+        // One unreadable file must not be reported as a clean selection: the
+        // user is told, and can drop just that photo and try again.
+        throw const ImagePickException(
+          'One of the selected photos could not be read.',
+        );
+      }
+    }
+    return images;
+  }
+
+  Future<PickedImage> _read(XFile file) async {
+    final Uint8List bytes;
+    try {
+      bytes = await file.readAsBytes();
+    } catch (_) {
+      throw const ImagePickException('That photo could not be read.');
+    }
     if (bytes.isEmpty) {
       throw const ImagePickException('That photo could not be read.');
     }
-
     return PickedImage(bytes: bytes, fileName: file.name);
   }
 

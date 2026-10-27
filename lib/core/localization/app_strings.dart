@@ -168,6 +168,9 @@ abstract class AppStrings {
   String get directNeighborNote;
   String get listingPreview;
   String get publishListing;
+  String get preview;
+  String get publish;
+  String get publishSuccess;
   String get publishing;
   String get publishFailed;
   String get published;
@@ -183,6 +186,21 @@ abstract class AppStrings {
   String get privateNote;
   String get listingTypeSale;
   String get listingTypeDonation;
+  String get price;
+  String get currency;
+  String get photosHint;
+  String get photoRequired;
+  String get photoLimit;
+  String get titleTooShort;
+  String get titleTooLong;
+  String get priceInvalid;
+  String get selectCondition;
+  String get selectCurrency;
+  String get selectDeliveryOption;
+  String get conditionFair;
+  String get publishSuccessTitle;
+  String get listingPublishedByYou;
+  String get descriptionTooLong;
 
   // ------------------------------------------------------------ listings ----
   String get statusAvailable;
@@ -633,6 +651,12 @@ class AppStringsEn extends AppStrings {
   @override
   String get publishListing => 'Publish Listing';
   @override
+  String get preview => 'Preview';
+  @override
+  String get publish => 'Publish';
+  @override
+  String get publishSuccess => 'Publish Success';
+  @override
   String get publishing => 'Publishing...';
   @override
   String get publishFailed =>
@@ -663,6 +687,37 @@ class AppStringsEn extends AppStrings {
   String get listingTypeSale => 'For Sale';
   @override
   String get listingTypeDonation => 'For Donation';
+  @override
+  String get price => 'Price';
+  @override
+  String get currency => 'Currency';
+  @override
+  String get photosHint => 'Show your item in clear, natural light';
+  @override
+  String get photoRequired => 'Add at least one photo of your item';
+  @override
+  String get photoLimit => 'You can add up to 5 photos';
+  @override
+  String get titleTooShort => 'Title must be at least 3 characters';
+  @override
+  String get titleTooLong => 'Title must be 120 characters or fewer';
+  @override
+  String get priceInvalid => 'Enter a valid price';
+  @override
+  String get selectCondition => 'Select a condition';
+  @override
+  String get selectCurrency => 'Select a currency';
+  @override
+  String get selectDeliveryOption => 'Select a delivery option';
+  @override
+  String get conditionFair => 'Fair';
+  @override
+  String get publishSuccessTitle => 'Listing Published';
+  @override
+  String get listingPublishedByYou => 'Listing published by you';
+  @override
+  String get descriptionTooLong =>
+      'Description must be 1000 characters or fewer';
 
   @override
   String get statusAvailable => 'Available';

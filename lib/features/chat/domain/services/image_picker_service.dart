@@ -37,4 +37,15 @@ abstract class ImagePickerService {
   /// Throws [ImagePickException] when the platform refused access, has no
   /// photo library, or the file could not be read.
   Future<PickedImage?> pickImage();
+
+  /// Returns every image the user chose in one go, or an empty list when they
+  /// cancelled.
+  ///
+  /// Used by the Create Listing photo step, which offers the multi-select
+  /// gallery. The plugin has no built-in ceiling, so the caller decides how
+  /// many of the returned images it can actually take rather than having
+  /// silently dropped selections reported as success.
+  ///
+  /// Throws [ImagePickException] under the same conditions as [pickImage].
+  Future<List<PickedImage>> pickImages();
 }

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'package:loqta/core/utils/price_formatter.dart';
+
 /// Whether a listing is priced or given away free.
 enum ListingType {
   sale,
@@ -49,6 +51,8 @@ class Listing extends Equatable {
     required this.area,
     required this.status,
     required this.createdAt,
+    this.currency,
+    this.deliveryAvailable,
     this.sellerName,
     this.sellerAvatarUrl,
     this.sellerMemberSince,
@@ -64,6 +68,18 @@ class Listing extends Equatable {
   final String condition;
   final ListingType type;
   final double? price;
+
+  /// Currency shown next to [price] — `SYP` or `USD`. Null for a donation,
+  /// which has no price to qualify, and for rows written before the Create
+  /// Listing flow asked for one.
+  final String? currency;
+
+  /// Whether the seller offers delivery as well as pickup.
+  ///
+  /// The Create Listing form forces an explicit choice, so a newly published
+  /// row is never null; the nullable type only exists for rows that predate
+  /// the question.
+  final bool? deliveryAvailable;
 
   /// Listing photography. May be empty, in which case the UI falls back to the
   /// category glyph used by the Home grid.
@@ -108,19 +124,16 @@ class Listing extends Equatable {
   String? get formattedPrice {
     final value = price;
     if (isDonation || value == null) return null;
-    if (value == value.roundToDouble()) {
-      return _grouped(value.round().toString());
-    }
-    return _grouped(value.toStringAsFixed(0));
+    return PriceFormatter.groupAmount(value);
   }
 
-  static String _grouped(String digits) {
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
+  /// The currency label shown beside [formattedPrice].
+  ///
+  /// Rows that predate the currency column read as `SYP`, which is what every
+  /// listing in the original catalogue used.
+  String get currencyLabel {
+    final code = currency?.trim();
+    return code == null || code.isEmpty ? 'SYP' : code;
   }
 
   Listing copyWith({
@@ -138,6 +151,8 @@ class Listing extends Equatable {
       condition: condition,
       type: type,
       price: price,
+      currency: currency,
+      deliveryAvailable: deliveryAvailable,
       imageUrls: imageUrls,
       governorate: governorate,
       area: area,

@@ -1,4 +1,5 @@
 import 'package:loqta/features/listings/domain/entities/listing.dart';
+import 'package:loqta/features/listings/domain/entities/listing_draft.dart';
 import 'package:loqta/features/listings/domain/entities/listing_page.dart';
 
 /// Reads listing data.
@@ -9,17 +10,29 @@ abstract class ListingRepository {
   /// The "Featured Finds" rows on Home.
   Future<List<Listing>> fetchFeatured({int limit = 6});
 
-  /// One page of listings whose title, description or category contains
-  /// [query].
-  ///
-  /// Pagination is server-side: the data source reads exactly [limit] rows
-  /// starting at [offset] and orders by `created_at desc, id desc` so batches
-  /// never overlap or skip a listing.
+  /// One page of listings with optional filters.
   Future<ListingPage> search({
     required String query,
     required int offset,
     int limit,
+    String? listingType,
+    String? governorate,
+    String? category,
   });
 
   Future<Listing> fetchById(String id);
+
+  Future<List<Listing>> fetchBySellerId(String sellerId);
+
+  /// Writes a new listing, its photographs and its private pickup address,
+  /// then returns the id of the published row.
+  ///
+  /// Success is only reported once the row exists **and** every photograph has
+  /// been stored — a partial publish is never reported as a success.
+  ///
+  /// [publishId] is the client-generated identity of this publish attempt. The
+  /// same value is passed on every retry of the same draft, which is what lets
+  /// an implementation return the row an earlier attempt already wrote instead
+  /// of creating a second one.
+  Future<String> publish(ListingDraft draft, {required String publishId});
 }

@@ -20,10 +20,19 @@ import 'package:loqta/features/listings/presentation/widgets/listing_card.dart';
 /// "Show more items" button, with the running total shown as
 /// "Viewing 4 of 24 listings".
 class SearchPage extends StatelessWidget {
-  const SearchPage({super.key, this.initialQuery});
+  const SearchPage({
+    super.key,
+    this.initialQuery,
+    this.listingType,
+    this.governorate,
+    this.category,
+  });
 
   /// Optional pre-filled keyword. Null when the user arrives from Home.
   final String? initialQuery;
+  final String? listingType;
+  final String? governorate;
+  final String? category;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +43,13 @@ class SearchPage extends StatelessWidget {
           ToggleFavoriteUseCase(context.read<FavoritesRepository>()),
         );
         final seed = initialQuery?.trim() ?? '';
-        if (seed.isNotEmpty) {
-          bloc.add(SearchSubmitted(seed));
+        if (seed.isNotEmpty || listingType != null || governorate != null || category != null) {
+          bloc.add(SearchSubmitted(
+            seed,
+            listingType: listingType,
+            governorate: governorate,
+            category: category,
+          ));
         }
         return bloc;
       },
@@ -64,7 +78,16 @@ class _SearchViewState extends State<SearchView> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    context.read<SearchBloc>().add(SearchSubmitted(_controller.text));
+    final searchBloc = context.read<SearchBloc>();
+    final state = searchBloc.state;
+    
+    // Maintain previous filter state if possible or get from some widget state
+    // But currently filters are not in the UI, need to add them.
+    searchBloc.add(SearchSubmitted(
+      _controller.text,
+      listingType: state is SearchSuccess ? state.listingType : null,
+      governorate: state is SearchSuccess ? state.governorate : null,
+    ));
   }
 
   @override
@@ -96,24 +119,35 @@ class _SearchViewState extends State<SearchView> {
                     size: 20,
                     color: LoqtaColors.textSecondary,
                   ),
-                  suffixIcon: ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _controller,
-                    builder: (context, value, _) => value.text.isEmpty
-                        ? const SizedBox.shrink()
-                        : IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              size: 18,
-                              color: LoqtaColors.textSecondary,
-                            ),
-                            tooltip: 'Clear search',
-                            onPressed: () {
-                              _controller.clear();
-                              context.read<SearchBloc>().add(
-                                const SearchCleared(),
-                              );
-                            },
-                          ),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) => value.text.isEmpty
+                            ? const SizedBox.shrink()
+                            : IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: LoqtaColors.textSecondary,
+                                ),
+                                tooltip: 'Clear search',
+                                onPressed: () {
+                                  _controller.clear();
+                                  context.read<SearchBloc>().add(
+                                    const SearchCleared(),
+                                  );
+                                },
+                              ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.filter_list, size: 20, color: LoqtaColors.textSecondary),
+                        onPressed: () {
+                          // TODO: Implement filter modal
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),

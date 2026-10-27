@@ -4,6 +4,7 @@ import 'package:loqta/core/localization/app_localizations.dart';
 import 'package:loqta/core/theme/app_theme.dart';
 import 'package:loqta/features/auth/presentation/pages/home_page.dart';
 import 'package:loqta/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:loqta/features/listings/presentation/pages/create_listing_page.dart';
 import 'package:loqta/features/listings/presentation/pages/favorites_page.dart';
 import 'package:loqta/features/profile/presentation/pages/profile_page.dart';
 
@@ -122,12 +123,14 @@ class LoqtaBottomNav extends StatelessWidget {
   }
 }
 
-/// The centre action: a raised, pill-shaped green button carrying a plus icon
-/// and the "Sell" label.
+/// The centre action: a green circle carrying a plus icon with the "Sell"
+/// label underneath.
 ///
 /// It reads as a primary action rather than a navigation tab — it has no
 /// selected state and it does not change destination — while still sitting
 /// inside the bar's visual centre, matching the approved references.
+
+/// The centre Sell action, styled consistently with the other navigation tabs.
 class _SellPill extends StatelessWidget {
   const _SellPill({required this.onTap});
 
@@ -135,47 +138,44 @@ class _SellPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.loqtaColors;
     final strings = context.l10n;
+    final sellColor = Theme.of(context).colorScheme.primary;
 
-    return Transform.translate(
-      offset: const Offset(0, -14),
-      child: Material(
-        color: Theme.of(context).colorScheme.primary,
-        elevation: 4,
-        shadowColor: palette.shadow,
-        borderRadius: BorderRadius.circular(999),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
-          child: Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onPrimary,
-                width: 2,
+    return Semantics(
+      button: true,
+      label: strings.navSell,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Material(
+                color: sellColor,
+                shape: const CircleBorder(),
+                child: const SizedBox(
+                  width: 38,
+                  height: 38,
+                  child: Icon(Icons.add, size: 24, color: Colors.white),
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.add,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onPrimary,
+              const SizedBox(height: 3),
+              Text(
+                strings.navSell,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: sellColor,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: LoqtaText.family,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  strings.navSell,
-                  style: LoqtaText.button.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -307,14 +307,16 @@ class MainShellState extends State<MainShell> {
     };
   }
 
-  void _notifyCreateListingUnavailable() {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Listing a new item is coming in a later release.'),
-        ),
-      );
+  /// Opens the Create Listing flow from the raised Sell action.
+  ///
+  /// The Sell pill is a primary action rather than a tab, so it lives outside
+  /// the destination stack: pushing the page keeps the shell below it intact
+  /// and keeps the bottom bar visible behind it, exactly like any other
+  /// pushed screen.
+  void _openCreateListing() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const CreateListingPage()));
   }
 
   @override
@@ -334,7 +336,7 @@ class MainShellState extends State<MainShell> {
       bottomNavigationBar: LoqtaBottomNav(
         current: _destination,
         onDestinationSelected: select,
-        onSellTap: _notifyCreateListingUnavailable,
+        onSellTap: _openCreateListing,
       ),
     );
   }

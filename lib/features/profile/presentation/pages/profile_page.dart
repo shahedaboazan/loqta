@@ -6,9 +6,10 @@ import 'package:loqta/core/theme/app_theme.dart';
 import 'package:loqta/core/widgets/loqta_app_bar.dart';
 import 'package:loqta/core/widgets/user_avatar.dart';
 import 'package:loqta/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:loqta/features/listings/presentation/pages/my_listings_page.dart';
+import 'package:loqta/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:loqta/features/profile/domain/repositories/profile_repository.dart';
 import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:loqta/features/settings/presentation/pages/security_privacy_page.dart';
 import 'package:loqta/features/settings/presentation/pages/settings_page.dart';
 
 /// Screen 18 — Profile, and the fifth main-navigation destination.
@@ -74,7 +75,11 @@ class ProfileView extends StatelessWidget {
                       _ProfileRow(
                         icon: Icons.inventory_2_outlined,
                         label: strings.myListings,
-                        enabled: false,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const MyListingsPage(),
+                          ),
+                        ),
                       ),
                       _ProfileRow(
                         icon: Icons.receipt_long_outlined,
@@ -85,6 +90,15 @@ class ProfileView extends StatelessWidget {
                         icon: Icons.star_outline,
                         label: strings.myRatings,
                         enabled: false,
+                      ),
+                      _ProfileRow(
+                        icon: Icons.chat_bubble_outline,
+                        label: strings.chatMessages,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => ChatListPage(),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 22),
                       _SectionLabel(strings.settings),
@@ -104,9 +118,7 @@ class ProfileView extends StatelessWidget {
                       _ProfileRow(
                         icon: Icons.logout,
                         label: strings.logOut,
-                        onTap: () => context.read<AuthBloc>().add(
-                          const SignOutRequested(),
-                        ),
+                        onTap: () => _confirmLogOut(context),
                       ),
                       _ProfileRow(
                         icon: Icons.delete_outline,
@@ -125,13 +137,51 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  /// Delete Account lives in Security & Privacy, where the consequences are
-  /// explained. This row navigates there rather than deleting anything itself,
-  /// so a stray tap can never destroy an account.
-  Future<void> _confirmDeleteAccount(BuildContext context) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const SecurityPrivacyPage()),
+  Future<void> _confirmLogOut(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.logOut),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
     );
+    if (confirmed == true) {
+      context.read<AuthBloc>().add(const SignOutRequested());
+    }
+  }
+
+  Future<void> _confirmDeleteAccount(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.deleteAccount),
+        content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      // In a real app we would call the actual delete account method here.
+      // Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const DeleteAccountPage()));
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:loqta/core/navigation/main_shell.dart'
+    show MainDestination, MainShellScope;
 import 'package:loqta/core/theme/app_theme.dart';
 
 /// The top bar shared by every authentication screen.
@@ -46,23 +47,29 @@ class LoqtaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return SizedBox(
       height: _height,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // The title is centred in the bar itself, not in the remaining
-          // space between the chevron and the account button, which would
-          // make it look off-centre. The padding keeps a long title clear of
-          // both of them.
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 52),
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: LoqtaText.screenTitle,
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: showBack ? 52 : LoqtaSpacing.gutter,
+                end: LoqtaSpacing.gutter + 40,
+              ),
+              child: Align(
+                alignment: isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                child: Text(
+                  title,
+                  textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: LoqtaText.screenTitle,
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -82,7 +89,13 @@ class LoqtaAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           Positioned(
             right: LoqtaSpacing.gutter - 6,
-            child: trailing ?? const AccountButton(),
+            child:
+                trailing ??
+                AccountButton(
+                  onPressed: () {
+                    MainShellScope.of(context)?.select(MainDestination.profile);
+                  },
+                ),
           ),
         ],
       ),

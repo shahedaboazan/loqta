@@ -27,6 +27,7 @@ import 'package:loqta/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:loqta/features/chat/presentation/pages/chat_page.dart';
 import 'package:loqta/features/chat/presentation/pages/image_viewer_page.dart';
 import 'package:loqta/features/listings/domain/entities/listing.dart';
+import 'package:loqta/features/listings/domain/entities/listing_draft.dart';
 import 'package:loqta/features/listings/domain/errors/listing_failure.dart';
 import 'package:loqta/features/listings/domain/repositories/favorites_repository.dart';
 import 'package:loqta/features/notifications/domain/repositories/notification_repository.dart';
@@ -103,7 +104,7 @@ class _ThrowingChatRepository extends FakeChatRepository {
       );
 
   @override
-  Future<List<Conversation>> fetchConversations() async =>
+  Future<List<Conversation>> fetchConversations({String? listingId}) async =>
       throw const ChatFailure(
         'Network error. Check your connection and try again.',
       );
@@ -121,6 +122,9 @@ class _ThrowingListingRepository implements ListingRepository {
     required String query,
     required int offset,
     int limit = 4,
+    String? listingType,
+    String? governorate,
+    String? category,
   }) async => throw const ListingFailure(
     'Network error. Check your connection and try again.',
   );
@@ -129,6 +133,18 @@ class _ThrowingListingRepository implements ListingRepository {
   Future<Listing> fetchById(String id) async => throw const ListingFailure(
     'Network error. Check your connection and try again.',
   );
+
+  @override
+  Future<List<Listing>> fetchBySellerId(String sellerId) async =>
+      throw const ListingFailure(
+        'Network error. Check your connection and try again.',
+      );
+
+  @override
+  Future<String> publish(ListingDraft draft, {required String publishId}) async =>
+      throw const ListingFailure(
+        'Network error. Check your connection and try again.',
+      );
 }
 
 /// Wraps [child] the same way main.dart does, so pages can resolve the
@@ -441,15 +457,11 @@ void main() {
       // The grid is repository-driven, not static chrome.
       expect(listings.featuredCalls, 1);
 
-      // Tapping a category has no browse screen yet, so it reports that
-      // destination instead of navigating anywhere.
+      // Tapping a category now navigates to the search page, so we
+      // should verify that behavior instead.
       await tester.tap(find.text('Furniture'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(
-        find.text('The Furniture category is coming in a later release.'),
-        findsOneWidget,
-      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SearchPage), findsOneWidget);
 
       expect(tester.takeException(), isNull);
     });

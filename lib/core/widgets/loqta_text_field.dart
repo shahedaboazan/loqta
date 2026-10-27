@@ -23,6 +23,7 @@ class LoqtaTextField extends StatefulWidget {
     this.validator,
     this.onFieldSubmitted,
     this.onChanged,
+    this.counter,
     this.enabled = true,
     this.autofillHints,
     this.helper,
@@ -64,6 +65,9 @@ class LoqtaTextField extends StatefulWidget {
   /// Custom helper content, used where the design pairs an icon with text.
   final Widget? helperWidget;
 
+  /// Optional character counter rendered on the label line, e.g. `10 / 120`.
+  final String? counter;
+
   /// Tints [helper] with the error colour.
   final bool helperError;
 
@@ -79,7 +83,21 @@ class _LoqtaTextFieldState extends State<LoqtaTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: LoqtaText.fieldLabel),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.label, style: LoqtaText.fieldLabel),
+            if (widget.counter != null) ...[
+              const SizedBox(width: 8),
+              Text(
+                widget.counter!,
+                style: LoqtaText.caption.copyWith(
+                  color: LoqtaColors.textTertiary,
+                ),
+              ),
+            ],
+          ],
+        ),
         const SizedBox(height: 7),
         TextFormField(
           controller: widget.controller,

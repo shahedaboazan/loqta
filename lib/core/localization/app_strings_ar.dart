@@ -9,6 +9,12 @@ class AppStringsAr extends AppStrings {
   const AppStringsAr();
 
   @override
+  String get preview => 'معاينة';
+  @override
+  String get publish => 'نشر';
+  @override
+  String get publishSuccess => 'تم النشر';
+  @override
   String get appName => 'لقطة';
   @override
   String get retry => 'إعادة المحاولة';
@@ -337,6 +343,36 @@ class AppStringsAr extends AppStrings {
   String get listingTypeSale => 'للبيع';
   @override
   String get listingTypeDonation => ' للتبرع';
+  @override
+  String get price => 'السعر';
+  @override
+  String get currency => 'العملة';
+  @override
+  String get photosHint => 'حتى 5 صور';
+  @override
+  String get photoRequired => 'أضف صورة واحدة على الأقل';
+  @override
+  String get photoLimit => 'يمكنك إضافة 5 صور كحد أقصى';
+  @override
+  String get titleTooShort => 'العنوان 3 أحرف على الأقل';
+  @override
+  String get titleTooLong => 'العنوان 120 حرفًا كحد أقصى';
+  @override
+  String get priceInvalid => 'أدخل سعرًا صحيحًا';
+  @override
+  String get selectCondition => 'اختر الحالة';
+  @override
+  String get selectCurrency => 'اختر العملة';
+  @override
+  String get selectDeliveryOption => 'اختر خيار التوصيل';
+  @override
+  String get conditionFair => 'مقبول';
+  @override
+  String get publishSuccessTitle => 'تم النشر';
+  @override
+  String get listingPublishedByYou => 'تم نشر إعلانك بنجاح';
+  @override
+  String get descriptionTooLong => 'الوصف 1000 حرف كحد أقصى';
 
   @override
   String get statusAvailable => 'متاح';

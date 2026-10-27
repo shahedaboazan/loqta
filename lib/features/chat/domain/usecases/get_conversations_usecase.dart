@@ -7,5 +7,6 @@ class GetConversationsUseCase {
 
   final ChatRepository _repository;
 
-  Future<List<Conversation>> call() => _repository.fetchConversations();
+  Future<List<Conversation>> call({String? listingId}) =>
+      _repository.fetchConversations(listingId: listingId);
 }

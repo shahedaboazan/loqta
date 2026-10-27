@@ -1,0 +1,53 @@
+warning: in the working copy of 'ios/Runner.xcodeproj/project.pbxproj', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/localization/app_strings_ar.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/navigation/main_shell.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/widgets/loqta_app_bar.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/widgets/loqta_text_field.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/chat/data/datasources/image_picker_data_source.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/chat/domain/services/image_picker_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/data/datasources/listing_remote_data_source.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/data/models/listing_model.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/data/repositories/listing_error_mapper.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/data/repositories/listing_repository_impl.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/domain/entities/listing.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/listings/domain/repositories/listing_repository.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/profile/presentation/pages/profile_page.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/support/fake_listing_repository.dart', LF will be replaced by CRLF the next time Git touches it
+ android/app/src/main/AndroidManifest.xml           |   2 [32m+[m[31m-[m
+ design_drafts/screens/23_listing_type_price.png    | Bin [31m30999[m -> [32m0[m bytes
+ design_drafts/screens/24_listing_preview.png       | Bin [31m34965[m -> [32m0[m bytes
+ ios/Runner.xcodeproj/project.pbxproj               |   4 [32m+[m[31m-[m
+ .../AppIcon.appiconset/Icon-App-1024x1024@1x.png   | Bin [31m10932[m -> [32m101068[m bytes
+ .../AppIcon.appiconset/Icon-App-20x20@1x.png       | Bin [31m295[m -> [32m403[m bytes
+ .../AppIcon.appiconset/Icon-App-20x20@2x.png       | Bin [31m406[m -> [32m1080[m bytes
+ .../AppIcon.appiconset/Icon-App-20x20@3x.png       | Bin [31m450[m -> [32m1803[m bytes
+ .../AppIcon.appiconset/Icon-App-29x29@1x.png       | Bin [31m282[m -> [32m682[m bytes
+ .../AppIcon.appiconset/Icon-App-29x29@2x.png       | Bin [31m462[m -> [32m1777[m bytes
+ .../AppIcon.appiconset/Icon-App-29x29@3x.png       | Bin [31m704[m -> [32m3028[m bytes
+ .../AppIcon.appiconset/Icon-App-40x40@1x.png       | Bin [31m406[m -> [32m1080[m bytes
+ .../AppIcon.appiconset/Icon-App-40x40@2x.png       | Bin [31m586[m -> [32m2683[m bytes
+ .../AppIcon.appiconset/Icon-App-40x40@3x.png       | Bin [31m862[m -> [32m4216[m bytes
+ .../AppIcon.appiconset/Icon-App-60x60@2x.png       | Bin [31m862[m -> [32m4216[m bytes
+ .../AppIcon.appiconset/Icon-App-60x60@3x.png       | Bin [31m1674[m -> [32m6203[m bytes
+ .../AppIcon.appiconset/Icon-App-76x76@1x.png       | Bin [31m762[m -> [32m2533[m bytes
+ .../AppIcon.appiconset/Icon-App-76x76@2x.png       | Bin [31m1226[m -> [32m5267[m bytes
+ .../AppIcon.appiconset/Icon-App-83.5x83.5@2x.png   | Bin [31m1418[m -> [32m5768[m bytes
+ lib/core/localization/app_strings.dart             |  55 [32m+++++++++[m
+ lib/core/localization/app_strings_ar.dart          |  36 [32m++++++[m
+ lib/core/navigation/main_shell.dart                |  98 [32m++++++++[m[31m--------[m
+ lib/core/widgets/loqta_app_bar.dart                |  41 [32m++++[m[31m---[m
+ lib/core/widgets/loqta_text_field.dart             |  20 [32m+++[m[31m-[m
+ .../data/datasources/image_picker_data_source.dart |  58 [32m+++++++++[m[31m-[m
+ .../chat/domain/services/image_picker_service.dart |  11 [32m++[m
+ .../datasources/listing_remote_data_source.dart    | 121 [32m++++++++++++++++++++[m
+ .../listings/data/models/listing_model.dart        |   2 [32m+[m
+ .../data/repositories/listing_error_mapper.dart    |  25 [32m++++[m
+ .../data/repositories/listing_repository_impl.dart |   5 [32m+[m
+ lib/features/listings/domain/entities/listing.dart |  37 [32m++++[m[31m--[m
+ .../domain/repositories/listing_repository.dart    |  13 [32m+++[m
+ .../profile/presentation/pages/profile_page.dart   |  52 [32m+++++++[m[31m--[m
+ pubspec.lock                                       |  64 [32m+++++++++[m[31m--[m
+ pubspec.yaml                                       |   7 [32m++[m
+ test/support/fake_listing_repository.dart          | 105 [32m++[m[31m---------------[m
+ test/support/fake_marketplace_repositories.dart    | 127 [32m+++[m[31m------------------[m
+ 37 files changed, 574 insertions(+), 309 deletions(-)

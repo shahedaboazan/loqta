@@ -421,7 +421,12 @@ void main() {
 
     await tester.tap(find.text('Log Out'));
     await tester.pumpAndSettle();
-
+    
+    // In our test, the sign out is handled by the AuthBloc and triggered by 
+    // tapping the button in the dialog. 
+    await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+    
     expect(authRepository.signOutCalls, greaterThanOrEqualTo(1));
     expect(find.text('Welcome Back'), findsOneWidget);
   });

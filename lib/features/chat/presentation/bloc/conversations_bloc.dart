@@ -49,7 +49,12 @@ sealed class ConversationsEvent extends Equatable {
 }
 
 class ConversationsRequested extends ConversationsEvent {
-  const ConversationsRequested();
+  const ConversationsRequested({this.listingId});
+
+  final String? listingId;
+
+  @override
+  List<Object?> get props => [listingId];
 }
 
 /// Internal event raised by the Realtime activity subscription.
@@ -91,7 +96,7 @@ class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState> {
     emit(const ConversationsInProgress());
 
     try {
-      final conversations = await _getConversations();
+      final conversations = await _getConversations(listingId: event.listingId);
       emit(ConversationsSuccess(conversations));
 
       await _subscription?.cancel();

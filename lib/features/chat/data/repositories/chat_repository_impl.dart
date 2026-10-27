@@ -32,8 +32,8 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<List<Conversation>> fetchConversations() =>
-      _guard(_dataSource.fetchConversations);
+  Future<List<Conversation>> fetchConversations({String? listingId}) =>
+      _guard(() => _dataSource.fetchConversations(listingId: listingId));
 
   @override
   Future<Conversation> fetchConversation(String conversationId) =>

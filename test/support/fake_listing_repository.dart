@@ -1,26 +1,13 @@
 import 'package:loqta/features/listings/domain/entities/listing.dart';
+import 'package:loqta/features/listings/domain/entities/listing_draft.dart';
 import 'package:loqta/features/listings/domain/entities/listing_page.dart';
 import 'package:loqta/features/listings/domain/repositories/listing_repository.dart';
 
-/// In-memory [ListingRepository] for widget tests.
-///
-/// `main.dart` registers the real repository above `MaterialApp`, and
-/// `HomeView` reads it in `FeaturedListingsBloc`, so every test that pumps the
-/// Home screen (or the `AuthGate` that routes to it) has to provide one. This
-/// fake stands in for that registration without touching production code.
 class FakeListingRepository implements ListingRepository {
   FakeListingRepository({this.featured = const [], this.all = const []});
 
-  /// Rows returned by [fetchFeatured], in order.
   final List<Listing> featured;
-
-  /// The full catalogue. [search] matches against it and [fetchById] reads
-  /// from it, which is what lets the Search and Listing Details screens be
-  /// exercised against real entities.
   final List<Listing> all;
-
-  /// How many times [fetchFeatured] ran, so a test can assert the grid was
-  /// actually driven by the repository rather than by empty chrome.
   int featuredCalls = 0;
 
   @override
@@ -34,14 +21,20 @@ class FakeListingRepository implements ListingRepository {
     required String query,
     required int offset,
     int limit = 4,
+    String? listingType,
+    String? governorate,
+    String? category,
   }) async {
     final term = query.trim().toLowerCase();
     final matches = all
         .where(
           (listing) =>
-              listing.title.toLowerCase().contains(term) ||
+              (listing.title.toLowerCase().contains(term) ||
               listing.description.toLowerCase().contains(term) ||
-              listing.category.toLowerCase().contains(term),
+              listing.category.toLowerCase().contains(term)) &&
+              (listingType == null || listingType == 'all' || (listingType == 'sale' ? !listing.isDonation : listing.isDonation)) &&
+              (governorate == null || governorate == 'all' || listing.governorate.toLowerCase() == governorate.toLowerCase()) &&
+              (category == null || category == 'all' || listing.category.toLowerCase() == category.toLowerCase()),
         )
         .toList();
 
@@ -59,6 +52,15 @@ class FakeListingRepository implements ListingRepository {
       throw StateError('FakeListingRepository has no row for "$id".');
     }
     return listing;
+  }
+
+  @override
+  Future<List<Listing>> fetchBySellerId(String sellerId) async =>
+      all.where((row) => row.sellerId == sellerId).toList();
+
+  @override
+  Future<String> publish(ListingDraft draft, {required String publishId}) async {
+    return publishId;
   }
 }
 

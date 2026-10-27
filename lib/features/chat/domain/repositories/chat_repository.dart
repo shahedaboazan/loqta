@@ -26,7 +26,9 @@ abstract class ChatRepository {
 
   /// All conversations the signed-in user participates in, newest activity
   /// first.
-  Future<List<Conversation>> fetchConversations();
+  ///
+  /// Optionally filtered by [listingId].
+  Future<List<Conversation>> fetchConversations({String? listingId});
 
   /// One conversation by id, resolved for the signed-in user.
   ///
