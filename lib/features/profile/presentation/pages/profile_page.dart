@@ -7,6 +7,7 @@ import 'package:loqta/core/widgets/loqta_app_bar.dart';
 import 'package:loqta/core/widgets/user_avatar.dart';
 import 'package:loqta/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:loqta/features/listings/presentation/pages/my_listings_page.dart';
+import 'package:loqta/features/listings/presentation/pages/transaction_history_page.dart';
 import 'package:loqta/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:loqta/features/profile/domain/repositories/profile_repository.dart';
 import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
@@ -84,7 +85,11 @@ class ProfileView extends StatelessWidget {
                       _ProfileRow(
                         icon: Icons.receipt_long_outlined,
                         label: strings.transactionHistory,
-                        enabled: false,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const TransactionHistoryPage(),
+                          ),
+                        ),
                       ),
                       _ProfileRow(
                         icon: Icons.star_outline,

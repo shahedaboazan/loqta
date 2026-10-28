@@ -102,6 +102,11 @@ class _DetailsBodyState extends State<_DetailsBody> {
     super.dispose();
   }
 
+  Future<void> _requestReservation() async {
+    // Implement reservation request logic here
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reservation requested!')));
+  }
+
   Future<void> _contactSeller() async {
     if (_isContacting) return;
 
@@ -269,6 +274,7 @@ class _DetailsBodyState extends State<_DetailsBody> {
           listing: listing,
           isContacting: _isContacting,
           onContact: _contactSeller,
+          onRequestReservation: _requestReservation,
         ),
       ],
     );
@@ -776,11 +782,13 @@ class _ContactBar extends StatelessWidget {
     required this.listing,
     required this.isContacting,
     required this.onContact,
+    required this.onRequestReservation,
   });
 
   final Listing listing;
   final bool isContacting;
   final VoidCallback onContact;
+  final VoidCallback onRequestReservation;
 
   @override
   Widget build(BuildContext context) {
@@ -798,30 +806,47 @@ class _ContactBar extends StatelessWidget {
             LoqtaSpacing.gutter,
             12,
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.flag_outlined,
-                size: 18,
-                color: LoqtaColors.textSecondary,
+              Row(
+                children: [
+                  const Icon(
+                    Icons.flag_outlined,
+                    size: 18,
+                    color: LoqtaColors.textSecondary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Report this listing',
+                    style: const TextStyle(
+                      color: LoqtaColors.textSecondary,
+                      fontSize: 10.5,
+                      fontFamily: LoqtaText.family,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Text(
-                'Report this listing',
-                style: const TextStyle(
-                  color: LoqtaColors.textSecondary,
-                  fontSize: 10.5,
-                  fontFamily: LoqtaText.family,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: LoqtaButton(
-                  label: listing.isDonation ? 'Request Item' : 'Contact Seller',
-                  onPressed: onContact,
-                  isLoading: isContacting,
-                  height: 48,
-                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: LoqtaButton(
+                      label: 'Chat',
+                      onPressed: onContact,
+                      isLoading: isContacting,
+                      height: 48,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: LoqtaButton(
+                      label: 'Request Reservation',
+                      onPressed: onRequestReservation,
+                      height: 48,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

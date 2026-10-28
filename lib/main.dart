@@ -20,6 +20,9 @@ import 'package:loqta/features/listings/data/datasources/favorites_remote_data_s
 import 'package:loqta/features/listings/data/datasources/listing_remote_data_source.dart';
 import 'package:loqta/features/listings/data/repositories/favorites_repository_impl.dart';
 import 'package:loqta/features/listings/data/repositories/listing_repository_impl.dart';
+import 'package:loqta/features/listings/data/datasources/transaction_remote_data_source.dart';
+import 'package:loqta/features/listings/data/repositories/transaction_repository_impl.dart';
+import 'package:loqta/features/listings/domain/repositories/transaction_repository.dart';
 import 'package:loqta/features/listings/domain/repositories/favorites_repository.dart';
 import 'package:loqta/features/listings/domain/repositories/listing_repository.dart';
 import 'package:loqta/features/notifications/data/datasources/notification_remote_data_source.dart';
@@ -68,6 +71,7 @@ Future<void> _bootstrap() async {
     // source of truth for listings, conversations, messages and notification
     // records; the BLoCs read through these abstractions only.
     final listingRepository = ListingRepositoryImpl(ListingRemoteDataSource());
+    final transactionRepository = TransactionRepositoryImpl(TransactionRemoteDataSource(Supabase.instance.client));
     final favoritesRepository = FavoritesRepositoryImpl(
       FavoritesRemoteDataSource(),
     );
@@ -98,6 +102,7 @@ Future<void> _bootstrap() async {
         onboardingRepository: onboardingRepository,
         profileRepository: profileRepository,
         settingsRepository: settingsRepository,
+        transactionRepository: transactionRepository,
         imagePickerService: imagePickerService,
       ),
     );
@@ -119,6 +124,7 @@ class LoqtaApp extends StatelessWidget {
     required this.onboardingRepository,
     required this.profileRepository,
     required this.settingsRepository,
+    required this.transactionRepository,
     required this.imagePickerService,
   });
 
@@ -130,6 +136,7 @@ class LoqtaApp extends StatelessWidget {
   final OnboardingRepository onboardingRepository;
   final ProfileRepository profileRepository;
   final SettingsRepository settingsRepository;
+  final TransactionRepository transactionRepository;
 
   final ImagePickerService imagePickerService;
 
@@ -148,6 +155,9 @@ class LoqtaApp extends StatelessWidget {
         ),
         RepositoryProvider<ProfileRepository>.value(value: profileRepository),
         RepositoryProvider<SettingsRepository>.value(value: settingsRepository),
+        RepositoryProvider<TransactionRepository>.value(
+          value: transactionRepository,
+        ),
         RepositoryProvider<ImagePickerService>.value(value: imagePickerService),
       ],
       // The session and onboarding BLoCs sit above MaterialApp, alongside the
