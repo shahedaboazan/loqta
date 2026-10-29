@@ -590,7 +590,7 @@ void main() {
       expect(find.text('Pickup Only'), findsOneWidget);
       expect(find.text('Description'), findsOneWidget);
       expect(find.text('Seller'), findsOneWidget);
-      expect(find.text('Contact Seller'), findsOneWidget);
+      expect(find.text('Chat'), findsOneWidget);
       expect(find.text('Report this listing'), findsOneWidget);
       // Only the public area is published, and it is shown with the privacy
       // notice rather than as an address.
@@ -641,8 +641,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(favorites.toggled, ['l1']);
 
-      // "Contact Seller" opens the thread for the listing on screen.
-      await tester.tap(find.text('Contact Seller'));
+      // "Chat" opens the thread for the listing on screen.
+      await tester.tap(find.text('Chat'));
       await tester.pumpAndSettle();
       expect(chat.requestedListingIds, ['l1']);
       expect(find.byType(ChatPage), findsOneWidget);

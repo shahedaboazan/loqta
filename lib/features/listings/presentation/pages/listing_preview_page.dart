@@ -45,12 +45,31 @@ class ListingPreviewPage extends StatelessWidget {
                   ),
                 const SizedBox(height: 16),
                 Text(draft.title, style: LoqtaText.heading),
-                const SizedBox(height: 8),
-                Text(draft.isDonation ? strings.free : '${draft.priceText} ${draft.currency}', style: LoqtaText.body),
-                const SizedBox(height: 8),
-                Text('${draft.governorate} - ${draft.category}', style: LoqtaText.caption),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                Text(
+                  draft.isDonation 
+                      ? strings.free 
+                      : '${draft.priceText} ${draft.currency}', 
+                  style: LoqtaText.heading.copyWith(
+                    color: LoqtaColors.primary,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 16, color: LoqtaColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(draft.governorate, style: LoqtaText.body),
+                    const SizedBox(width: 16),
+                    const Icon(Icons.category_outlined, size: 16, color: LoqtaColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(draft.category, style: LoqtaText.body),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 Text(strings.description, style: LoqtaText.fieldLabel),
+                const SizedBox(height: 8),
                 Text(draft.description, style: LoqtaText.body),
               ],
             ),
@@ -59,9 +78,9 @@ class ListingPreviewPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: LoqtaButton(
-                label: strings.publish,
+                label: state.isPublishing ? strings.publishing : strings.publish,
                 onPressed: state.isPublishing 
-                    ? () {} 
+                    ? null 
                     : () => context.read<CreateListingBloc>().add(const CreateListingPublishRequested()),
               ),
             ),

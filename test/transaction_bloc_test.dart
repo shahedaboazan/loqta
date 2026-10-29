@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loqta/features/listings/domain/entities/reservation.dart';
-import 'package:loqta/features/listings/domain/entities/transaction.dart';
 import 'package:loqta/features/listings/presentation/bloc/transaction_bloc.dart';
 import 'support/fake_transaction_repository.dart';
 

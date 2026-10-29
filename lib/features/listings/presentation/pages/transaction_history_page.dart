@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loqta/core/localization/app_localizations.dart';
-import 'package:loqta/core/widgets/loqta_app_bar.dart';
 import 'package:loqta/features/listings/domain/repositories/transaction_repository.dart';
 import 'package:loqta/features/listings/presentation/bloc/transaction_bloc.dart';
 

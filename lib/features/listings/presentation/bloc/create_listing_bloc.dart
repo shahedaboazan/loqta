@@ -43,6 +43,7 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
   }
 
   Future<void> _onCreateListingPhotosRequested(CreateListingPhotosRequested event, Emitter<CreateListingState> emit) async {
+    if (state.isPickingPhotos) return;
     emit(state.copyWith(isPickingPhotos: true));
     try {
       final picked = await _picker.pickImages();

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:loqta/core/localization/app_localizations.dart';
 import 'package:loqta/core/theme/app_theme.dart';
 import 'package:loqta/features/auth/data/datasources/auth_data_source.dart';
@@ -40,8 +43,14 @@ import 'package:loqta/features/settings/domain/repositories/settings_repository.
 import 'package:loqta/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await _bootstrap();
 }
 
@@ -52,6 +61,10 @@ Future<void> main() async {
 /// is shown with a way to try again.
 Future<void> _bootstrap() async {
   try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
     // Supabase is initialized once, here, with the existing project
     // configuration. Everything else reads Supabase.instance.client.
     await Supabase.initialize(

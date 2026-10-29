@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "584615642653",
+    "project_id": "loqta-c4625",
+    "storage_bucket": "loqta-c4625.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584615642653:android:34129e996560dfb39b28f4",
+        "android_client_info": {
+          "package_name": "com.example.loqta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDnSmy4EaPSJPmfnrqsRUhU2DSrsjCVC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

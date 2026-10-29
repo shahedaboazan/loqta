@@ -66,6 +66,7 @@ class _CreateListingViewState extends State<CreateListingView> {
   }
 
   void _continue() {
+    if (context.read<CreateListingBloc>().state.isPickingPhotos) return;
     context.read<CreateListingBloc>().add(const CreateListingContinueRequested());
   }
 
@@ -143,7 +144,7 @@ class _CreateListingViewState extends State<CreateListingView> {
               ),
               child: LoqtaButton(
                 label: strings.continueToPreview,
-                onPressed: _continue,
+                onPressed: state.isPickingPhotos ? null : _continue,
                 showArrow: true,
                 height: 52,
               ),
@@ -168,7 +169,7 @@ class _CreateListingViewState extends State<CreateListingView> {
                     onChanged: (type) => bloc.add(ListingTypeChanged(type)),
                   ),
                   _SectionHeader(strings.photos, isRequired: true),
-                  _PhotosSection(onPick: _pickPhotos),
+                  _PhotosSection(onPick: state.isPickingPhotos ? () {} : _pickPhotos),
                   _SectionHeader(strings.title, isRequired: true),
                   _TitleField(
                     controller: _titleController,
