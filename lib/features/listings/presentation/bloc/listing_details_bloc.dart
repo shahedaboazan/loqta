@@ -72,11 +72,9 @@ class ListingFavoriteToggled extends ListingDetailsEvent {
 class ListingDetailsBloc
     extends Bloc<ListingDetailsEvent, ListingDetailsState> {
   ListingDetailsBloc({
-    required GetListingUseCase getListing,
-    required ToggleFavoriteUseCase toggleFavorite,
-  }) : _getListing = getListing,
-       _toggleFavorite = toggleFavorite,
-       super(const ListingDetailsInProgress()) {
+    required this._getListing,
+    required this._toggleFavorite,
+  }) : super(const ListingDetailsInProgress()) {
     on<ListingDetailsRequested>(_onRequested);
     on<ListingDetailsRefreshed>(_onRefreshed);
     on<ListingFavoriteToggled>(_onFavoriteToggled);

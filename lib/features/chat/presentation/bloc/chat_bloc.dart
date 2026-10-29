@@ -151,19 +151,13 @@ class ChatRealtimeFailed extends ChatEvent {
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
-    required WatchMessagesUseCase watchMessages,
-    required SendMessageUseCase sendMessage,
-    required SendImageMessageUseCase sendImageMessage,
-    required MarkConversationReadUseCase markRead,
-    required GetConversationUseCase getConversation,
-    required Conversation? conversation,
-  }) : _watchMessages = watchMessages,
-       _sendMessage = sendMessage,
-       _sendImageMessage = sendImageMessage,
-       _markRead = markRead,
-       _getConversation = getConversation,
-       _conversation = conversation,
-       super(const ChatInProgress()) {
+    required this._watchMessages,
+    required this._sendMessage,
+    required this._sendImageMessage,
+    required this._markRead,
+    required this._getConversation,
+    required this._conversation,
+  }) : super(const ChatInProgress()) {
     on<ChatStarted>(_onStarted);
     on<ChatHistoryReloaded>(_onReloaded);
     on<ChatMessageSent>(_onMessageSent);

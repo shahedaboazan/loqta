@@ -99,14 +99,11 @@ class NotificationsStreamFailed extends NotificationsEvent {
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   NotificationsBloc({
-    required GetNotificationsUseCase getNotifications,
-    required MarkNotificationReadUseCase markRead,
-    required MarkAllNotificationsReadUseCase markAllRead,
+    required this._getNotifications,
+    required this._markRead,
+    required this._markAllRead,
     required NotificationRepository notificationRepository,
-  }) : _getNotifications = getNotifications,
-       _markRead = markRead,
-       _markAllRead = markAllRead,
-       _repository = notificationRepository,
+  }) : _repository = notificationRepository,
        super(const NotificationsInProgress()) {
     on<NotificationsRequested>(_onRequested);
     on<NotificationsRefreshed>(_onRefreshed);

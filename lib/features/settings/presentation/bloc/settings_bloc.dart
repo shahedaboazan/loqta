@@ -14,9 +14,8 @@ import 'package:loqta/features/settings/domain/repositories/settings_repository.
 /// Writes are awaited before the new state is emitted so the UI never shows a
 /// choice that failed to persist.
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc({required SettingsRepository repository})
-    : _repository = repository,
-      super(SettingsState.initial()) {
+  SettingsBloc({required this._repository})
+    : super(SettingsState.initial()) {
     on<SettingsRequested>(_onRequested);
     on<SettingsLocaleChanged>(_onLocaleChanged);
     on<SettingsThemeModeChanged>(_onThemeModeChanged);

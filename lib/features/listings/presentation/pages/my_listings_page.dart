@@ -66,7 +66,7 @@ class MyListingsView extends StatelessWidget {
             return ListView.separated(
               padding: const EdgeInsets.all(LoqtaSpacing.gutter),
               itemCount: state.listings.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final listing = state.listings[index];
                 return Column(

@@ -52,11 +52,9 @@ class FavoritesRequested extends FavoritesEvent {
 
 class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   FavoritesBloc({
-    required GetFavoriteListingsUseCase getFavorites,
-    required ToggleFavoriteUseCase toggleFavorite,
-  }) : _getFavorites = getFavorites,
-       _toggleFavorite = toggleFavorite,
-       super(const FavoritesInProgress()) {
+    required this._getFavorites,
+    required this._toggleFavorite,
+  }) : super(const FavoritesInProgress()) {
     on<FavoritesRequested>(_onRequested);
     on<FavoriteRemoved>(_onRemoved);
   }

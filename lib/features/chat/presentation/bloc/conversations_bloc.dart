@@ -64,11 +64,9 @@ class ConversationsActivityDetected extends ConversationsEvent {
 
 class ConversationsBloc extends Bloc<ConversationsEvent, ConversationsState> {
   ConversationsBloc({
-    required GetConversationsUseCase getConversations,
-    required ChatRepository chatRepository,
-  }) : _getConversations = getConversations,
-       _chatRepository = chatRepository,
-       super(const ConversationsInProgress()) {
+    required this._getConversations,
+    required this._chatRepository,
+  }) : super(const ConversationsInProgress()) {
     on<ConversationsRequested>(_onRequested);
     on<ConversationsActivityDetected>(_onActivityDetected);
   }

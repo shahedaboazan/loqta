@@ -1,5 +1,3 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:loqta/features/chat/domain/entities/message.dart';
 
 /// Maps a `messages` row onto [Message].

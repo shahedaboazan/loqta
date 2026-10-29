@@ -10,11 +10,9 @@ import 'package:loqta/features/listings/domain/usecases/publish_listing_usecase.
 
 class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
   CreateListingBloc({
-    required ImagePickerService picker,
-    required PublishListingUseCase publish,
-  }) : _picker = picker,
-       _publish = publish,
-       super(const CreateListingState()) {
+    required this._picker,
+    required this._publish,
+  }) : super(const CreateListingState()) {
     on<ListingTypeChanged>(_onListingTypeChanged);
     on<CreateListingPhotosRequested>(_onCreateListingPhotosRequested);
     on<PhotoRemoved>(_onPhotoRemoved);

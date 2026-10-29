@@ -160,7 +160,7 @@ class ProfileView extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true) {
+    if (confirmed == true && context.mounted) {
       context.read<AuthBloc>().add(const SignOutRequested());
     }
   }

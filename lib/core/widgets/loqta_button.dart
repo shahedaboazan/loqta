@@ -15,7 +15,7 @@ class LoqtaButton extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isLoading;
 
   /// Renders the trailing arrow. The reference designs show it everywhere

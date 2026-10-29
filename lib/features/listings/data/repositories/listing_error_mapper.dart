@@ -65,8 +65,9 @@ class ListingErrorMapper {
 
   static String _messageOr(String raw, String fallback) {
     final message = raw.trim();
-    if (message.isEmpty || message.toLowerCase() == 'exception')
+    if (message.isEmpty || message.toLowerCase() == 'exception') {
       return fallback;
+    }
     return message;
   }
 }

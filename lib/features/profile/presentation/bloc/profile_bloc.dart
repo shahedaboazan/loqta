@@ -11,9 +11,8 @@ import 'package:loqta/features/profile/domain/repositories/profile_repository.da
 /// on the profile header immediately rather than after a manual refresh — the
 /// two screens read the same state instead of each fetching their own copy.
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc({required ProfileRepository repository})
-    : _repository = repository,
-      super(const ProfileState.initial()) {
+  ProfileBloc({required this._repository})
+    : super(const ProfileState.initial()) {
     on<ProfileRequested>(_onRequested);
     on<ProfileSubmitted>(_onSubmitted);
     on<ProfilePhotoRemoved>(_onPhotoRemoved);

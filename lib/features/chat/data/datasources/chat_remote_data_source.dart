@@ -268,7 +268,7 @@ class ChatRemoteDataSource {
             callback: (payload) async {
               if (closed) return;
               final raw = payload.newRecord;
-              if (raw is! Map || raw.isEmpty) return;
+              if (raw.isEmpty) return;
 
               final message = MessageModel.fromRow(
                 Map<String, dynamic>.from(raw),
@@ -339,7 +339,7 @@ class ChatRemoteDataSource {
                   ? payload.newRecord
                   : payload.oldRecord;
               final userId = _client.auth.currentUser?.id;
-              if (row is Map && userId != null) {
+              if (userId != null) {
                 final participates =
                     row['buyer_id'] == userId || row['seller_id'] == userId;
                 if (!participates) return;
