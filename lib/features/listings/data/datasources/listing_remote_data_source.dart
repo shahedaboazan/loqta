@@ -36,14 +36,14 @@ class ListingRemoteDataSource {
     String? category,
   }) async {
     final term = _sanitize(query);
-    
+
     // Pattern for ILIKE.
     final pattern = term.isEmpty ? null : '%$term%';
 
     var queryBuilder = _client
         .from('listings')
         .select(ListingModel.selectColumns)
-        .eq('status', 'active');
+        .eq('status', 'available');
 
     // Add filter: Text search (title or description or category)
     if (pattern != null) {

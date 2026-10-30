@@ -22,6 +22,7 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
     on<CreateListingPriceChanged>(_onCreateListingPriceChanged);
     on<CreateListingCurrencyChanged>(_onCreateListingCurrencyChanged);
     on<CreateListingGovernorateChanged>(_onCreateListingGovernorateChanged);
+    on<CreateListingAreaChanged>(_onCreateListingAreaChanged);
     on<CreateListingPickupAddressChanged>(_onCreateListingPickupAddressChanged);
     on<CreateListingDeliveryChanged>(_onCreateListingDeliveryChanged);
     on<CreateListingDescriptionChanged>(_onCreateListingDescriptionChanged);
@@ -86,7 +87,11 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
   }
 
   Future<void> _onCreateListingGovernorateChanged(CreateListingGovernorateChanged event, Emitter<CreateListingState> emit) async {
-    emit(state.copyWith(draft: state.draft.copyWith(governorate: event.governorate), errors: _withoutError(ListingField.governorate, state.errors)));
+    emit(state.copyWith(draft: state.draft.copyWith(governorate: event.governorate, area: ''), errors: _withoutError(ListingField.governorate, state.errors)));
+  }
+
+  Future<void> _onCreateListingAreaChanged(CreateListingAreaChanged event, Emitter<CreateListingState> emit) async {
+    emit(state.copyWith(draft: state.draft.copyWith(area: event.area), errors: _withoutError(ListingField.governorate, state.errors)));
   }
 
   Future<void> _onCreateListingPickupAddressChanged(CreateListingPickupAddressChanged event, Emitter<CreateListingState> emit) async {
@@ -156,6 +161,7 @@ class CreateListingConditionChanged extends CreateListingEvent { const CreateLis
 class CreateListingPriceChanged extends CreateListingEvent { const CreateListingPriceChanged(this.price); final String price; @override List<Object?> get props => [price]; }
 class CreateListingCurrencyChanged extends CreateListingEvent { const CreateListingCurrencyChanged(this.currency); final String currency; @override List<Object?> get props => [currency]; }
 class CreateListingGovernorateChanged extends CreateListingEvent { const CreateListingGovernorateChanged(this.governorate); final String governorate; @override List<Object?> get props => [governorate]; }
+class CreateListingAreaChanged extends CreateListingEvent { const CreateListingAreaChanged(this.area); final String area; @override List<Object?> get props => [area]; }
 class CreateListingPickupAddressChanged extends CreateListingEvent { const CreateListingPickupAddressChanged(this.pickupAddress); final String pickupAddress; @override List<Object?> get props => [pickupAddress]; }
 class CreateListingDeliveryChanged extends CreateListingEvent { const CreateListingDeliveryChanged(this.deliveryAvailable); final bool deliveryAvailable; @override List<Object?> get props => [deliveryAvailable]; }
 class CreateListingDescriptionChanged extends CreateListingEvent { const CreateListingDescriptionChanged(this.description); final String description; @override List<Object?> get props => [description]; }

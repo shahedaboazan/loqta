@@ -633,4 +633,8 @@ class AppStringsAr extends AppStrings {
   String get categoryToys => 'ألعاب';
   @override
   String get categoryOther => 'أخرى';
+  @override
+  String get categoryWomen => 'نساء';
+  @override
+  String get categoryBags => 'حقائب';
 }

@@ -116,8 +116,8 @@ create table if not exists public.listings (
   -- Public location only. There is deliberately no pickup_address column.
   governorate text not null default '',
   area text not null default '',
-  status text not null default 'active'
-    check (status in ('active', 'reserved', 'sold', 'removed')),
+  status text not null default 'available'
+    check (status in ('available', 'reserved', 'sold', 'donated')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 

@@ -261,7 +261,7 @@ begin
     -- The Create Listing form has no Area step, so a new listing publishes the
     -- governorate only and the public `area` column stays empty.
     '',
-    'active',
+    'available',
     p_delivery_available
   );
 

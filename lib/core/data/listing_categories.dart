@@ -107,6 +107,16 @@ const List<ListingCategory> kListingCategories = <ListingCategory>[
     icon: Icons.toys_outlined,
   ),
   ListingCategory(
+    key: 'Women',
+    labelKey: 'categoryWomen',
+    icon: Icons.woman_outlined,
+  ),
+  ListingCategory(
+    key: 'Bags',
+    labelKey: 'categoryBags',
+    icon: Icons.work_outline,
+  ),
+  ListingCategory(
     key: 'Other',
     labelKey: 'categoryOther',
     icon: Icons.category_outlined,

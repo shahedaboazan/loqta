@@ -18,7 +18,8 @@ import 'package:loqta/features/listings/domain/usecases/publish_listing_usecase.
 import 'package:loqta/features/listings/presentation/bloc/create_listing_bloc.dart';
 import 'package:loqta/features/listings/presentation/pages/listing_preview_page.dart';
 import 'package:loqta/features/listings/presentation/utils/create_listing_field_errors.dart';
-
+import 'package:loqta/features/profile/domain/repositories/profile_repository.dart';
+import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
 /// Screen 22 — Create Listing.
 ///
 /// Owns the [CreateListingBloc] for the whole flow, collects the draft and
@@ -67,7 +68,9 @@ class _CreateListingViewState extends State<CreateListingView> {
 
   void _continue() {
     if (context.read<CreateListingBloc>().state.isPickingPhotos) return;
-    context.read<CreateListingBloc>().add(const CreateListingContinueRequested());
+    context.read<CreateListingBloc>().add(
+      const CreateListingContinueRequested(),
+    );
   }
 
   void _pickPhotos() {
@@ -84,10 +87,15 @@ class _CreateListingViewState extends State<CreateListingView> {
     final bloc = context.read<CreateListingBloc>();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => BlocProvider<CreateListingBloc>.value(
-          value: bloc,
-          child: const ListingPreviewPage(),
-        ),
+        builder: (routeContext) => BlocProvider<ProfileBloc>(
+  create: (_) => ProfileBloc(
+    repository: routeContext.read<ProfileRepository>(),
+  )..add(const ProfileRequested()),
+  child: BlocProvider<CreateListingBloc>.value(
+    value: bloc,
+    child: const ListingPreviewPage(),
+  ),
+),
       ),
     );
   }
@@ -163,37 +171,77 @@ class _CreateListingViewState extends State<CreateListingView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionHeader(strings.listingTypePrice),
                   _ListingTypeSection(
                     draft: draft,
                     onChanged: (type) => bloc.add(ListingTypeChanged(type)),
                   ),
+                  const SizedBox(height: 20),
                   _SectionHeader(strings.photos, isRequired: true),
-                  _PhotosSection(onPick: state.isPickingPhotos ? () {} : _pickPhotos),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Clear, natural daylight photos sell up to 3x faster',
+                    style: TextStyle(
+                      color: LoqtaColors.textSecondary,
+                      fontSize: 12,
+                      fontFamily: LoqtaText.family,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _PhotosSection(
+                    onPick: state.isPickingPhotos ? () {} : _pickPhotos,
+                  ),
+                  const SizedBox(height: 20),
                   _SectionHeader(strings.title, isRequired: true),
+                  const SizedBox(height: 8),
                   _TitleField(
                     controller: _titleController,
                     hint: strings.titleHint,
-                    counter: '${draft.title.trim().length}/${ListingDraft.maxTitleLength}',
+                    counter:
+                        '${draft.title.trim().length}/${ListingDraft.maxTitleLength}',
                     error: _errorOf(
                       context,
                       ListingField.title,
                       state.errors[ListingField.title],
                     ),
-                    onChanged: (value) => bloc.add(CreateListingTitleChanged(value)),
+                    onChanged: (value) =>
+                        bloc.add(CreateListingTitleChanged(value)),
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Mention item type, brand, and key attributes (e.g. Modern Fabric Sofa 3-seater)',
+                    style: TextStyle(
+                      color: LoqtaColors.textSecondary,
+                      fontSize: 11,
+                      fontFamily: LoqtaText.family,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   _SelectField(
                     label: strings.category,
                     isRequired: true,
                     value: draft.category,
                     placeholder: strings.selectCategory,
                     options: kListingCategories
-                        .map((category) =>
-                            context.l10n.resolveCategory(category.labelKey, category.key))
+                        .map(
+                          (category) => context.l10n.resolveCategory(
+                            category.labelKey,
+                            category.key,
+                          ),
+                        )
                         .toList(),
                     onSelected: (category) =>
                         bloc.add(CreateListingCategoryChanged(category)),
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Allowed categories: Furniture, Electronics, Home Appliances, Clothes, Shoes, Children’s Items, Household Items, Books, Tools & Equipment, Car Parts, Other.',
+                    style: TextStyle(
+                      color: LoqtaColors.textSecondary,
+                      fontSize: 11,
+                      fontFamily: LoqtaText.family,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   _ConditionSection(
                     value: draft.condition,
                     error: _errorOf(
@@ -204,33 +252,55 @@ class _CreateListingViewState extends State<CreateListingView> {
                     onChanged: (condition) =>
                         bloc.add(CreateListingConditionChanged(condition)),
                   ),
-                  _PriceSection(
-                    controller: _priceController,
-                    priceText: draft.priceText,
-                    currency: draft.currency,
-                    error: _errorOf(
-                      context,
-                      ListingField.price,
-                      state.errors[ListingField.price],
+                  const SizedBox(height: 16),
+                  if (draft.type == ListingType.sale) ...[
+                    _SectionHeader(strings.price, isRequired: true),
+                    const SizedBox(height: 16),
+                    _PriceSection(
+                      controller: _priceController,
+                      priceText: draft.priceText,
+                      currency: draft.currency,
+                      error: _errorOf(
+                        context,
+                        ListingField.price,
+                        state.errors[ListingField.price],
+                      ),
+                      currencyError: _errorOf(
+                        context,
+                        ListingField.currency,
+                        state.errors[ListingField.currency],
+                      ),
+                      onPriceChanged: (value) =>
+                          bloc.add(CreateListingPriceChanged(value)),
+                      onCurrencyChanged: (currency) =>
+                          bloc.add(CreateListingCurrencyChanged(currency)),
                     ),
-                    currencyError: _errorOf(
-                      context,
-                      ListingField.currency,
-                      state.errors[ListingField.currency],
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Price in Syrian Pounds (SYP).',
+                      style: TextStyle(
+                        color: LoqtaColors.textSecondary,
+                        fontSize: 11,
+                        fontFamily: LoqtaText.family,
+                      ),
                     ),
-                    onPriceChanged: (value) => bloc.add(CreateListingPriceChanged(value)),
-                    onCurrencyChanged: (currency) =>
-                        bloc.add(CreateListingCurrencyChanged(currency)),
-                  ),
+                    const SizedBox(height: 20),
+                  ],
+                  _SectionHeader(strings.governorate, isRequired: true),
+                  const SizedBox(height: 8),
                   _SelectField(
-                    label: strings.governorate,
-                    isRequired: true,
-                    value: draft.governorate,
+                    label: '',
+                    isRequired: false,
+                    value: draft.governorate.isEmpty
+                        ? strings.selectGovernorate
+                        : draft.governorate,
                     placeholder: strings.selectGovernorate,
                     options: SyriaLocations.governorateKeys,
                     onSelected: (governorate) =>
                         bloc.add(CreateListingGovernorateChanged(governorate)),
                   ),
+                  const SizedBox(height: 20),
+
                   _PickupAddressSection(
                     controller: _pickupController,
                     error: _errorOf(
@@ -241,6 +311,38 @@ class _CreateListingViewState extends State<CreateListingView> {
                     onChanged: (value) =>
                         bloc.add(CreateListingPickupAddressChanged(value)),
                   ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: context.loqtaColors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: context.loqtaColors.border),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.lock_outline,
+                          size: 16,
+                          color: LoqtaColors.textSecondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Your exact pickup address is private. It is never displayed publicly on your listing and is only shared with confirmed buyers/recipients.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: LoqtaColors.textSecondary,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   _DeliverySection(
                     value: draft.deliveryAvailable,
                     error: _errorOf(
@@ -248,9 +350,43 @@ class _CreateListingViewState extends State<CreateListingView> {
                       ListingField.delivery,
                       state.errors[ListingField.delivery],
                     ),
-                    onChanged: (value) => bloc.add(CreateListingDeliveryChanged(value)),
+                    onChanged: (value) =>
+                        bloc.add(CreateListingDeliveryChanged(value)),
                   ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: context.loqtaColors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: context.loqtaColors.border),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: LoqtaColors.textSecondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'You will arrange pickup or delivery directly with the other person through chat. Loqta does not manage transport.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: LoqtaColors.textSecondary,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   _SectionHeader(strings.description, isRequired: true),
+                  const SizedBox(height: 8),
                   _DescriptionField(
                     controller: _descriptionController,
                     error: _errorOf(
@@ -258,7 +394,17 @@ class _CreateListingViewState extends State<CreateListingView> {
                       ListingField.description,
                       state.errors[ListingField.description],
                     ),
-                    onChanged: (value) => bloc.add(CreateListingDescriptionChanged(value)),
+                    onChanged: (value) =>
+                        bloc.add(CreateListingDescriptionChanged(value)),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Include dimensions, defects, reasons for selling',
+                    style: TextStyle(
+                      color: LoqtaColors.textSecondary,
+                      fontSize: 11,
+                      fontFamily: LoqtaText.family,
+                    ),
                   ),
                   const SizedBox(height: 28),
                 ],
@@ -309,7 +455,7 @@ class _ListingTypeSection extends StatelessWidget {
             child: _OptionCard(
               icon: ListingType.values[i].isDonation
                   ? Icons.redeem_outlined
-                  : Icons.shopping_cart_outlined,
+                  : Icons.check_circle_outline,
               label: ListingType.values[i].isDonation
                   ? strings.listingTypeDonation
                   : strings.listingTypeSale,
@@ -348,29 +494,29 @@ class _OptionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(LoqtaSpacing.radiusField),
           border: Border.all(
             color: selected ? LoqtaColors.primary : LoqtaColors.border,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 22,
+              size: 20,
               color: selected ? LoqtaColors.primary : LoqtaColors.textSecondary,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: selected
-                      ? LoqtaColors.primary
-                      : LoqtaColors.headingPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: LoqtaText.family,
-                ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: selected
+                    ? LoqtaColors.primary
+                    : LoqtaColors.headingPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                fontFamily: LoqtaText.family,
               ),
             ),
           ],
@@ -392,11 +538,7 @@ class _PhotosSection extends StatelessWidget {
     final strings = context.l10n;
     final photoError = bloc.state.errors[ListingField.photos];
     final error = photoError != null
-        ? createListingFieldErrorText(
-            strings,
-            ListingField.photos,
-            photoError,
-          )
+        ? createListingFieldErrorText(strings, ListingField.photos, photoError)
         : null;
 
     return Column(
@@ -409,28 +551,21 @@ class _PhotosSection extends StatelessWidget {
             for (var i = 0; i < draft.photos.length; i++)
               _PhotoTile(
                 photo: draft.photos[i],
-                onRemove: () => context.read<CreateListingBloc>().add(
-                      PhotoRemoved(i),
-                    ),
+                onRemove: () =>
+                    context.read<CreateListingBloc>().add(PhotoRemoved(i)),
               ),
             if (draft.photos.length < ListingDraft.maxPhotos)
               _AddPhotoTile(onTap: onPick),
           ],
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          _FieldError(error),
-        ],
+        if (error != null) ...[const SizedBox(height: 8), _FieldError(error)],
       ],
     );
   }
 }
 
 class _PhotoTile extends StatelessWidget {
-  const _PhotoTile({
-    required this.photo,
-    required this.onRemove,
-  });
+  const _PhotoTile({required this.photo, required this.onRemove});
 
   final ListingDraftPhoto photo;
   final VoidCallback onRemove;
@@ -463,11 +598,7 @@ class _PhotoTile extends StatelessWidget {
                   color: Colors.black54,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
               ),
             ),
           ),
@@ -499,13 +630,18 @@ class _AddPhotoTile extends StatelessWidget {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 22, color: LoqtaColors.textSecondary),
-            SizedBox(height: 4),
+            Icon(
+              Icons.add_a_photo_outlined,
+              size: 20,
+              color: LoqtaColors.primary,
+            ),
+            SizedBox(height: 2),
             Text(
               'Add',
               style: TextStyle(
-                color: LoqtaColors.textSecondary,
+                color: LoqtaColors.primary,
                 fontSize: 11,
+                fontWeight: FontWeight.w600,
                 fontFamily: LoqtaText.family,
               ),
             ),
@@ -535,7 +671,7 @@ class _TitleField extends StatelessWidget {
   Widget build(BuildContext context) {
     return LoqtaTextField(
       controller: controller,
-      label: '${context.l10n.title} *',
+      label: '',
       hintText: hint,
       counter: counter,
       helper: error,
@@ -568,8 +704,8 @@ class _SelectField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _FieldShell(
-      label: label,
-      isRequired: isRequired,
+      label: isRequired ? '$label *' : label,
+      isRequired: false,
       child: _SelectControl(
         title: isRequired ? '$label *' : label,
         value: value.isEmpty ? placeholder : value,
@@ -602,40 +738,61 @@ class _SelectControl extends StatelessWidget {
       onTap: () async {
         final picked = await showModalBottomSheet<String>(
           context: context,
+          isScrollControlled: true,
           backgroundColor: LoqtaColors.background,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          builder: (sheetContext) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    LoqtaSpacing.gutter,
-                    16,
-                    LoqtaSpacing.gutter,
-                    8,
-                  ),
-                  child: Text(
-                    title,
-                    style: LoqtaText.heading.copyWith(
-                      color: LoqtaColors.headingPrimary,
+          builder: (sheetContext) {
+            final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.75;
+
+            return SafeArea(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxHeight),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        LoqtaSpacing.gutter,
+                        16,
+                        LoqtaSpacing.gutter,
+                        8,
+                      ),
+                      child: Text(
+                        title,
+                        style: LoqtaText.heading.copyWith(
+                          color: LoqtaColors.headingPrimary,
+                        ),
+                      ),
                     ),
-                  ),
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: options.length,
+                        itemBuilder: (context, index) {
+                          final option = options[index];
+
+                          return ListTile(
+                            title: Text(option),
+                            selected: option == selectedValue,
+                            selectedTileColor: LoqtaColors.surfaceMint,
+                            onTap: () {
+                              Navigator.of(sheetContext).pop(option);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                ...options.map(
-                  (option) => ListTile(
-                    title: Text(option),
-                    selected: option == selectedValue,
-                    selectedTileColor: LoqtaColors.surfaceMint,
-                    onTap: () => Navigator.of(sheetContext).pop(option),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
+
+        if (picked != null) onSelected(picked);
+
         if (picked != null) onSelected(picked);
       },
       borderRadius: BorderRadius.circular(LoqtaSpacing.radiusField),
@@ -684,11 +841,10 @@ class _FieldShell extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          isRequired ? '$label *' : label,
-          style: LoqtaText.fieldLabel,
-        ),
-        const SizedBox(height: 7),
+        if (label.isNotEmpty) ...[
+          Text(isRequired ? '$label *' : label, style: LoqtaText.fieldLabel),
+          const SizedBox(height: 7),
+        ],
         child,
       ],
     );
@@ -736,34 +892,59 @@ class _ConditionSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _FieldShell(
-          label: strings.condition,
-          isRequired: true,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: kListingConditionValues.map((condition) {
-              final selected = value == condition;
-              return ChoiceChip(
-                label: Text(condition),
-                selected: selected,
-                selectedColor: LoqtaColors.primary,
-                backgroundColor: LoqtaColors.surface,
-                labelStyle: TextStyle(
-                  color: selected ? Colors.white : LoqtaColors.headingPrimary,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: LoqtaText.family,
+          label: '${strings.condition} *',
+          isRequired: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  value.isNotEmpty ? 'Selected: $value' : '',
+                  style: const TextStyle(
+                    color: LoqtaColors.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                showCheckmark: false,
-                onSelected: (_) => onChanged(condition),
-              );
-            }).toList(),
+              ),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: kListingConditionValues.map((condition) {
+                  final selected = value == condition;
+                  return ChoiceChip(
+                    label: Text(condition),
+                    selected: selected,
+                    selectedColor: LoqtaColors.primary,
+                    backgroundColor: LoqtaColors.surface,
+                    labelStyle: TextStyle(
+                      color: selected
+                          ? Colors.white
+                          : LoqtaColors.headingPrimary,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: LoqtaText.family,
+                    ),
+                    showCheckmark: false,
+                    onSelected: (_) => onChanged(condition),
+                  );
+                }).toList(),
+              ),
+            ],
           ),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          _FieldError(error!),
-        ],
+        const SizedBox(height: 6),
+        const Text(
+          '“Good” means normal gentle use, minor signs of cosmetic wear, fully functional.',
+          style: TextStyle(
+            color: LoqtaColors.textSecondary,
+            fontSize: 11,
+            fontFamily: LoqtaText.family,
+          ),
+        ),
+        if (error != null) ...[const SizedBox(height: 8), _FieldError(error!)],
       ],
     );
   }
@@ -793,14 +974,16 @@ class _PriceSection extends StatelessWidget {
     final strings = context.l10n;
 
     return _FieldShell(
-      label: strings.price,
-      isRequired: true,
+      label: '${strings.price} *',
+      isRequired: false,
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 hintText: strings.enterPrice,
                 hintStyle: LoqtaText.fieldHint,
@@ -852,14 +1035,28 @@ class _PickupAddressSection extends StatelessWidget {
 
     return _FieldShell(
       label: '${strings.exactPickupAddress} *',
-      isRequired: true,
-      child: LoqtaTextField(
-        controller: controller,
-        label: '',
-        hintText: strings.exactPickupAddressHint,
-        helper: error,
-        helperError: error != null,
-        onChanged: onChanged,
+      isRequired: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Specific street, building or landmark for handoff',
+            style: TextStyle(
+              color: LoqtaColors.textSecondary,
+              fontSize: 11,
+              fontFamily: LoqtaText.family,
+            ),
+          ),
+          const SizedBox(height: 8),
+          LoqtaTextField(
+            controller: controller,
+            label: '',
+            hintText: strings.exactPickupAddressHint,
+            helper: error,
+            helperError: error != null,
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }
@@ -885,27 +1082,26 @@ class _DeliverySection extends StatelessWidget {
       children: [
         _FieldShell(
           label: '${strings.deliveryOption} *',
-          isRequired: true,
+          isRequired: false,
           child: Column(
             children: [
               _DeliveryRow(
                 label: strings.pickupOnly,
-                selected: value != true,
+                subLabel: 'Buyer collects in person from your area.',
+                selected: value == false,
                 onTap: () => onChanged(false),
               ),
               const SizedBox(height: 8),
               _DeliveryRow(
                 label: strings.deliveryAvailable,
+                subLabel: 'You can arrange or handle local delivery directly.',
                 selected: value == true,
                 onTap: () => onChanged(true),
               ),
             ],
           ),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          _FieldError(error!),
-        ],
+        if (error != null) ...[const SizedBox(height: 8), _FieldError(error!)],
       ],
     );
   }
@@ -914,11 +1110,13 @@ class _DeliverySection extends StatelessWidget {
 class _DeliveryRow extends StatelessWidget {
   const _DeliveryRow({
     required this.label,
+    required this.subLabel,
     required this.selected,
     required this.onTap,
   });
 
   final String label;
+  final String subLabel;
   final bool selected;
   final VoidCallback onTap;
 
@@ -934,23 +1132,43 @@ class _DeliveryRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(LoqtaSpacing.radiusField),
           border: Border.all(
             color: selected ? LoqtaColors.primary : LoqtaColors.border,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              selected ? Icons.check_circle : Icons.radio_button_unchecked,
-              size: 20,
-              color: selected ? LoqtaColors.primary : LoqtaColors.textTertiary,
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                selected ? Icons.check_circle : Icons.radio_button_unchecked,
+                size: 20,
+                color: selected
+                    ? LoqtaColors.primary
+                    : LoqtaColors.textTertiary,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                label,
-                style: LoqtaText.body.copyWith(
-                  color: LoqtaColors.headingPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: LoqtaText.body.copyWith(
+                      color: LoqtaColors.headingPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: LoqtaColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -973,11 +1191,9 @@ class _DescriptionField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = context.l10n;
-
     return LoqtaTextField(
       controller: controller,
-      label: '${strings.description} *',
+      label: '',
       maxLines: 4,
       keyboardType: TextInputType.multiline,
       inputFormatters: [

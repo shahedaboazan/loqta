@@ -341,6 +341,8 @@ abstract class AppStrings {
   String get categoryJewelry;
   String get categoryToys;
   String get categoryOther;
+  String get categoryWomen;
+  String get categoryBags;
 }
 
 /// The English implementation of [AppStrings].
@@ -978,4 +980,8 @@ class AppStringsEn extends AppStrings {
   String get categoryToys => 'Toys';
   @override
   String get categoryOther => 'Other';
+  @override
+  String get categoryWomen => 'Women';
+  @override
+  String get categoryBags => 'Bags';
 }

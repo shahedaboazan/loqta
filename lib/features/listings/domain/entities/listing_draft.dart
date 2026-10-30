@@ -76,6 +76,7 @@ class ListingDraft extends Equatable {
     this.priceText = '',
     this.currency = 'SYP',
     this.governorate = '',
+    this.area = '',
     this.pickupAddress = '',
     this.deliveryAvailable,
     this.description = '',
@@ -108,6 +109,7 @@ class ListingDraft extends Equatable {
 
   final String currency;
   final String governorate;
+  final String area;
 
   /// Exact pickup address. Private: it is written to its own table with
   /// owner-only read access and never appears on a public screen.
@@ -206,6 +208,7 @@ class ListingDraft extends Equatable {
     bool clearPrice = false,
     String? currency,
     String? governorate,
+    String? area,
     String? pickupAddress,
     bool? deliveryAvailable,
     String? description,
@@ -219,6 +222,7 @@ class ListingDraft extends Equatable {
       priceText: clearPrice ? '' : (priceText ?? this.priceText),
       currency: currency ?? this.currency,
       governorate: governorate ?? this.governorate,
+      area: area ?? this.area,
       pickupAddress: pickupAddress ?? this.pickupAddress,
       deliveryAvailable: deliveryAvailable ?? this.deliveryAvailable,
       description: description ?? this.description,
@@ -235,6 +239,7 @@ class ListingDraft extends Equatable {
     priceText,
     currency,
     governorate,
+    area,
     pickupAddress,
     deliveryAvailable,
     description,

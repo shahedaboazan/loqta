@@ -15,17 +15,18 @@ enum ListingType {
 
 /// Lifecycle of a listing, used by the "listing status update" notification.
 enum ListingStatus {
-  active,
+  available,
   reserved,
   sold,
-  removed;
+  donated;
 
   static ListingStatus fromValue(String? value) => switch (value) {
-    'reserved' => ListingStatus.reserved,
-    'sold' => ListingStatus.sold,
-    'removed' => ListingStatus.removed,
-    _ => ListingStatus.active,
-  };
+  'available' => ListingStatus.available,
+  'reserved' => ListingStatus.reserved,
+  'sold' => ListingStatus.sold,
+  'donated' => ListingStatus.donated,
+  _ => ListingStatus.available,
+};
 }
 
 /// A marketplace listing.
