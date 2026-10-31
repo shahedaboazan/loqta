@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loqta/features/profile/domain/entities/user_profile.dart';
 import 'package:loqta/features/profile/domain/errors/profile_failure.dart';
 import 'package:loqta/features/profile/domain/repositories/profile_repository.dart';
+import 'package:loqta/features/chat/domain/services/image_picker_service.dart';
 
 /// Loads and updates the signed-in user's profile.
 ///
@@ -16,6 +17,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileRequested>(_onRequested);
     on<ProfileSubmitted>(_onSubmitted);
     on<ProfilePhotoRemoved>(_onPhotoRemoved);
+    on<ProfilePhotoSelected>(_onPhotoSelected);
   }
 
   final ProfileRepository _repository;
@@ -81,19 +83,66 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ProfilePhotoRemoved event,
     Emitter<ProfileState> emit,
   ) async {
-    final current = state.profile;
-    if (current == null || (current.avatarUrl ?? '').isEmpty) return;
-    await _onSubmitted(
-      ProfileSubmitted(
-        firstName: current.firstName,
-        lastName: current.lastName,
-        avatarUrl: '',
-        governorate: current.governorate,
-        area: current.area,
-        phoneNumber: current.phoneNumber,
-      ),
-      emit,
-    );
+    if (state.profile == null) return;
+
+    emit(state.copyWith(status: ProfileStatus.saving, clearError: true));
+
+    try {
+      final updatedProfile = await _repository.updateAvatar(null);
+
+      emit(
+        state.copyWith(
+          status: ProfileStatus.saved,
+          profile: updatedProfile,
+          clearError: true,
+        ),
+      );
+    } on ProfileFailure catch (failure) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: failure.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPhotoSelected(
+    ProfilePhotoSelected event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(status: ProfileStatus.saving, clearError: true));
+
+    try {
+      final url = await _repository.uploadAvatarImage(
+        bytes: event.image.bytes,
+        fileName: event.image.fileName,
+      );
+
+      final updatedProfile = await _repository.updateAvatar(url);
+
+      emit(
+        state.copyWith(
+          status: ProfileStatus.saved,
+          profile: updatedProfile,
+          clearError: true,
+        ),
+      );
+    } on ProfileFailure catch (failure) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: failure.message,
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: 'تعذر تحديث صورة الملف الشخصي.',
+        ),
+      );
+    }
   }
 }
 
@@ -147,6 +196,15 @@ class ProfilePhotoRemoved extends ProfileEvent {
   const ProfilePhotoRemoved();
 }
 
+/// Uploads and saves a newly selected profile photo.
+class ProfilePhotoSelected extends ProfileEvent {
+  const ProfilePhotoSelected(this.image);
+
+  final PickedImage image;
+
+  @override
+  List<Object?> get props => [image.bytes, image.fileName];
+}
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------

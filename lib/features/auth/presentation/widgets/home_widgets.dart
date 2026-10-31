@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
 import 'package:loqta/core/theme/app_theme.dart';
-
+import 'package:loqta/core/data/listing_categories.dart';
 /// The category entries in the horizontal "Categories" strip on Home.
 ///
 /// The approved Home design shows a fixed decorative strip and the Search screen
 /// has no filter affordances, so these are navigation chrome rather than a
 /// queryable category list.
-class HomeCategory {
-  const HomeCategory({required this.label, required this.icon});
+// class HomeCategory {
+//   const HomeCategory({required this.label, required this.icon});
 
-  final String label;
-  final IconData icon;
-}
+//   final String label;
+//   final IconData icon;
+// }
 
-const List<HomeCategory> kHomeCategories = [
-  HomeCategory(label: 'Furniture', icon: Icons.weekend_outlined),
-  HomeCategory(label: 'Electronics', icon: Icons.laptop_mac_outlined),
-  HomeCategory(label: 'Appliances', icon: Icons.kitchen_outlined),
-  HomeCategory(label: 'Clothes', icon: Icons.checkroom_outlined),
-  HomeCategory(label: 'Shoes', icon: Icons.directions_walk_outlined),
-  HomeCategory(label: 'Children', icon: Icons.toys_outlined),
-];
+// const List<HomeCategory> kHomeCategories = [
+//   HomeCategory(label: 'Furniture', icon: Icons.weekend_outlined),
+//   HomeCategory(label: 'Electronics', icon: Icons.laptop_mac_outlined),
+//   HomeCategory(label: 'Appliances', icon: Icons.kitchen_outlined),
+//   HomeCategory(label: 'Clothes', icon: Icons.checkroom_outlined),
+//   HomeCategory(label: 'Shoes', icon: Icons.directions_walk_outlined),
+//   HomeCategory(label: 'Children', icon: Icons.toys_outlined),
+// ];
 
 /// The rounded search bar on Home.
 ///
@@ -257,24 +257,31 @@ class HomeSectionHeader extends StatelessWidget {
 }
 
 /// The horizontal category strip.
+
 class HomeCategoryStrip extends StatelessWidget {
-  const HomeCategoryStrip({super.key, required this.onSelected});
+  const HomeCategoryStrip({
+    super.key,
+    required this.onSelected,
+  });
 
   final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
+    final categories = kListingCategories.take(6).toList();
+
     return SizedBox(
       height: 78,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: kHomeCategories.length,
+        itemCount: categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
-          final category = kHomeCategories[index];
+          final category = categories[index];
+
           return GestureDetector(
-            onTap: () => onSelected(category.label),
+            onTap: () => onSelected(category.key),
             child: Container(
               width: 68,
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -300,7 +307,7 @@ class HomeCategoryStrip extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    category.label,
+                    category.key,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

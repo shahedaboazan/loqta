@@ -13,6 +13,7 @@ import 'package:loqta/features/listings/presentation/pages/listing_details_page.
 import 'package:loqta/features/listings/presentation/pages/search_page.dart';
 import 'package:loqta/features/listings/presentation/widgets/listing_card.dart';
 import 'package:loqta/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:loqta/features/listings/presentation/pages/all_categories_page.dart';
 
 /// The authenticated landing screen, rebuilt from
 /// `design_drafts/screens/10_home.png`.
@@ -112,7 +113,13 @@ class _HomeScaffold extends StatelessWidget {
                               // The approved design has no filtered browse
                               // screen, so the card opens Search rather than
                               // inventing one.
-                              onTap: () => _push(context, const SearchPage(initialQuery: '', listingType: 'sale')),
+                              onTap: () => _push(
+                                context,
+                                const SearchPage(
+                                  initialQuery: '',
+                                  listingType: 'sale',
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -125,7 +132,13 @@ class _HomeScaffold extends StatelessWidget {
                               accent: LoqtaColors.accentCyan,
                               background: const Color(0xFFEFF8FB),
                               borderColor: const Color(0xFFD3EAF2),
-                              onTap: () => _push(context, const SearchPage(initialQuery: '', listingType: 'donation')),
+                              onTap: () => _push(
+                                context,
+                                const SearchPage(
+                                  initialQuery: '',
+                                  listingType: 'donation',
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -135,8 +148,7 @@ class _HomeScaffold extends StatelessWidget {
                     HomeSectionHeader(
                       title: 'Categories',
                       trailing: GestureDetector(
-                        onTap: () =>
-                            _notifyNotAvailable(context, 'All categories'),
+                        onTap: () => _push(context, const AllCategoriesPage()),
                         child: const Text('See All', style: LoqtaText.link),
                       ),
                     ),

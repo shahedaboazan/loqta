@@ -207,6 +207,13 @@ Message messageFixture({
 class FakeImagePickerService implements ImagePickerService {
   FakeImagePickerService({this.result, this.error, this.images = const []});
   PickedImage? result;
+  @override
+Future<PickedImage?> takePhoto() async {
+  calls++;
+  final failure = error;
+  if (failure != null) throw failure;
+  return result;
+}
   List<PickedImage> images;
   Object? error;
   int calls = 0;
@@ -256,9 +263,12 @@ class FakeNotificationRepository implements NotificationRepository {
 
 class FakeProfileRepository implements ProfileRepository {
   FakeProfileRepository({this.profile});
+
   UserProfile? profile;
+
   @override
   Future<UserProfile?> fetchCurrentProfile() async => profile;
+
   @override
   Future<UserProfile> updateProfile({
     String? firstName,
@@ -277,8 +287,35 @@ class FakeProfileRepository implements ProfileRepository {
       area: area ?? profile?.area,
       phoneNumber: phoneNumber ?? profile?.phoneNumber,
     );
+
     profile = saved;
     return saved;
+  }
+
+  @override
+  Future<UserProfile?> updateAvatar(String? avatarUrl) async {
+    final current = profile ?? const UserProfile(id: 'u1');
+
+    final updated = UserProfile(
+      id: current.id,
+      firstName: current.firstName,
+      lastName: current.lastName,
+      avatarUrl: avatarUrl,
+      governorate: current.governorate,
+      area: current.area,
+      phoneNumber: current.phoneNumber,
+    );
+
+    profile = updated;
+    return updated;
+  }
+
+  @override
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    return 'https://example.invalid/avatars/$fileName';
   }
 }
 

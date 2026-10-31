@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:loqta/features/profile/domain/entities/user_profile.dart';
 
+import 'dart:typed_data';
+
 /// Maps a `profiles` row to the domain entity.
 class UserProfileModel extends UserProfile {
   const UserProfileModel({
@@ -71,7 +73,18 @@ class ProfileRemoteDataSource {
   /// Returns null when the account has no profile row yet, which is a valid
   /// state rather than an error.
   Future<UserProfileModel?> fetchCurrentProfile() async {
-    final response = await _client.from(_table).select().limit(1).maybeSingle();
+    final userId = currentUserId;
+
+    if (userId == null || userId.isEmpty) {
+      return null;
+    }
+
+    final response = await _client
+        .from(_table)
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+
     return response == null ? null : UserProfileModel.fromMap(response);
   }
 
@@ -95,5 +108,72 @@ class ProfileRemoteDataSource {
         .select()
         .single();
     return UserProfileModel.fromMap(inserted);
+  }
+
+  Future<UserProfileModel> updateAvatar(String? avatarUrl) async {
+    final userId = currentUserId;
+
+    if (userId == null || userId.isEmpty) {
+      throw Exception('User is not authenticated.');
+    }
+
+    final response = await _client
+        .from(_table)
+        .update({'avatar_url': avatarUrl})
+        .eq('id', userId)
+        .select()
+        .maybeSingle();
+
+    if (response != null) {
+      return UserProfileModel.fromMap(response);
+    }
+
+    final inserted = await _client
+        .from(_table)
+        .insert({'id': userId, 'avatar_url': avatarUrl})
+        .select()
+        .single();
+
+    return UserProfileModel.fromMap(inserted);
+  }
+
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    final userId = currentUserId;
+
+    if (userId == null || userId.isEmpty) {
+      throw Exception('User is not authenticated.');
+    }
+
+    final extension = fileName.contains('.')
+        ? fileName.split('.').last.toLowerCase()
+        : 'jpg';
+
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+    final safeExtension = allowedExtensions.contains(extension)
+        ? extension
+        : 'jpg';
+
+    final contentType = switch (safeExtension) {
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      _ => 'image/jpeg',
+    };
+
+    final path =
+        '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}.$safeExtension';
+
+    await _client.storage
+        .from('avatars')
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: contentType, upsert: true),
+        );
+
+    return _client.storage.from('avatars').getPublicUrl(path);
   }
 }

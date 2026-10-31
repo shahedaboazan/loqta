@@ -65,4 +65,29 @@ class ProfileRepositoryImpl implements ProfileRepository {
       throw const ProfileUpdateFailure();
     }
   }
+
+  @override
+  Future<UserProfile> updateAvatar(String? avatarUrl) async {
+    try {
+      return await _remote.updateAvatar(avatarUrl);
+    } on ProfileFailure {
+      rethrow;
+    } catch (error) {
+      throw ProfileUnavailableFailure();
+    }
+  }
+
+  @override
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    try {
+      return await _remote.uploadAvatarImage(bytes: bytes, fileName: fileName);
+    } on ProfileFailure {
+      rethrow;
+    } catch (_) {
+      throw ProfileUnavailableFailure();
+    }
+  }
 }

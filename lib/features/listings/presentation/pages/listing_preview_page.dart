@@ -7,7 +7,7 @@ import 'package:loqta/core/widgets/loqta_button.dart';
 import 'package:loqta/features/listings/presentation/bloc/create_listing_bloc.dart';
 import 'package:loqta/features/listings/presentation/pages/publish_success_page.dart';
 import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
-
+import 'package:flutter/foundation.dart';
 class ListingPreviewPage extends StatefulWidget {
   const ListingPreviewPage({super.key});
 
@@ -180,8 +180,8 @@ class _ListingPreviewPageState extends State<ListingPreviewPage> {
                           ),
                           Expanded(
                             child: _buildDetailItem(
-                              label: 'Area / Quarter',
-                              value: draft.area,
+                              label: 'Governorate',
+                              value: draft.governorate,
                               icon: Icons.location_on_outlined,
                             ),
                           ),
@@ -214,7 +214,7 @@ class _ListingPreviewPageState extends State<ListingPreviewPage> {
                     border: Border.all(color: context.loqtaColors.border),
                   ),
                   child: Text(
-                    '${draft.governorate} · ${draft.area}',
+                    '${draft.governorate}',
                     style: LoqtaText.body.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -359,11 +359,31 @@ class _ListingPreviewPageState extends State<ListingPreviewPage> {
                           ? strings.publishing
                           : 'Publish Listing',
                       isLoading: state.isPublishing,
-                      onPressed: state.isPublishing
+                      /* onPressed: state.isPublishing
                           ? null
                           : () => context.read<CreateListingBloc>().add(
                               const CreateListingPublishRequested(),
-                            ),
+                            ), */
+                      onPressed: state.isPublishing
+                          ? null
+                          : () {
+                              debugPrint(
+                                '========== PUBLISH BUTTON DEBUG ==========',
+                              );
+                              debugPrint('[PUBLISH BUTTON] BUTTON PRESSED');
+                              debugPrint(
+                                '[PUBLISH BUTTON] isPublishing: ${state.isPublishing}',
+                              );
+                              debugPrint(
+                                '[PUBLISH BUTTON] Dispatching CreateListingPublishRequested',
+                              );
+
+                              context.read<CreateListingBloc>().add(
+                                const CreateListingPublishRequested(),
+                              );
+
+                              debugPrint('[PUBLISH BUTTON] Event dispatched');
+                            },
                     ),
                   ),
                 ],

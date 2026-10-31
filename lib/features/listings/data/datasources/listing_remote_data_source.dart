@@ -6,6 +6,7 @@ import 'package:loqta/features/listings/data/models/listing_model.dart';
 import 'package:loqta/features/listings/domain/entities/listing.dart';
 import 'package:loqta/features/listings/domain/entities/listing_draft.dart';
 import 'package:loqta/features/listings/domain/entities/listing_page.dart';
+import 'package:flutter/foundation.dart';
 
 /// Thrown when a listing id has no matching row, or the caller cannot read it.
 ///
@@ -86,7 +87,7 @@ class ListingRemoteDataSource {
     final rows = await _client
         .from('listings')
         .select(ListingModel.selectColumns)
-        .eq('status', 'active')
+        .eq('status', 'available')
         .order('created_at', ascending: false)
         .order('id', ascending: false)
         .limit(limit);
@@ -153,6 +154,11 @@ class ListingRemoteDataSource {
 
     final objectPaths = <String>[];
     final imageUrls = <String>[];
+    // PUBLISH DEBUG
+    debugPrint('[PUBLISH DATA] Started');
+    debugPrint('[PUBLISH DATA] User authenticated: ${_currentUserId != null}');
+    debugPrint('[PUBLISH DATA] Photos count: ${draft.photos.length}');
+    debugPrint('[PUBLISH DATA] Listing ID: $publishId');
 
     try {
       for (var index = 0; index < draft.photos.length; index++) {
@@ -163,6 +169,9 @@ class ListingRemoteDataSource {
 
         // A fresh name per attempt: two retries can never collide on the same
         // object key, so an upload never fails because the key is taken.
+        debugPrint(
+          '[PUBLISH DATA] Uploading photo ${index + 1}/${draft.photos.length}',
+        );
         final stored = await _client.storage
             .from(imagesBucket)
             .uploadBinary(objectPath, photo.bytes);
@@ -170,21 +179,25 @@ class ListingRemoteDataSource {
         if (stored.isEmpty) {
           throw StateError('A photo could not be uploaded.');
         }
-
+        debugPrint('[PUBLISH DATA] Photo ${index + 1} uploaded successfully');
         objectPaths.add(objectPath);
         imageUrls.add(
           _client.storage.from(imagesBucket).getPublicUrl(objectPath),
         );
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
       // The database has not been touched yet, so everything uploaded so far
       // is unreachable garbage. The owner-only delete policy removes it.
+      debugPrint('[PUBLISH DATA] PHOTO UPLOAD ERROR: $error');
+      debugPrint('[PUBLISH DATA] PHOTO UPLOAD STACK: $stackTrace');
       await _discard(objectPaths);
       rethrow;
     }
 
     try {
-      await _client.rpc(
+      debugPrint('[PUBLISH DATA] Starting publish_listing RPC');
+
+      final response = await _client.rpc(
         'publish_listing',
         params: {
           'p_listing_id': publishId,
@@ -201,6 +214,21 @@ class ListingRemoteDataSource {
           'p_pickup_address': draft.pickupAddress.trim(),
         },
       );
+
+      debugPrint('[PUBLISH DATA] RPC completed. Response: $response');
+    } on PostgrestException catch (error, stackTrace) {
+      debugPrint('[PUBLISH DATA] RPC ERROR: ${error.message}');
+      debugPrint('[PUBLISH DATA] RPC CODE: ${error.code}');
+      debugPrint('[PUBLISH DATA] RPC DETAILS: ${error.details}');
+      debugPrint('[PUBLISH DATA] RPC HINT: ${error.hint}');
+      debugPrint('[PUBLISH DATA] RPC STACK: $stackTrace');
+
+      await _discard(objectPaths);
+      rethrow;
+    } catch (error, stackTrace) {
+      debugPrint('[PUBLISH DATA] NON-POSTGREST ERROR: $error');
+      debugPrint('[PUBLISH DATA] STACK: $stackTrace');
+      rethrow;
     } on PostgrestException {
       // The server rejected the write, so its transaction rolled back and no
       // row can reference these objects. Deleting them keeps the bucket clean.

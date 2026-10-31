@@ -30,15 +30,18 @@ class CreateListingTestPage extends StatelessWidget {
 class _MockImagePickerService implements ImagePickerService {
   @override
   Future<PickedImage?> pickImage() async => null;
-
+  @override
+  Future<PickedImage?> takePhoto() async => null;
   @override
   Future<List<PickedImage>> pickImages() async => [];
 }
 
 class _MockListingRepository implements ListingRepository {
   @override
-  Future<String> publish(ListingDraft draft, {required String publishId}) async =>
-      'test-listing-id';
+  Future<String> publish(
+    ListingDraft draft, {
+    required String publishId,
+  }) async => 'test-listing-id';
 
   @override
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

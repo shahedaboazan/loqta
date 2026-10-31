@@ -12,8 +12,11 @@ class ListingModel {
   /// on `favorites` means that embedded array only ever contains the signed-in
   /// user's own rows, which is what makes [Listing.isFavorite] safe to derive
   /// from the payload.
+  // static const String selectColumns =
+  //     '*, seller:profiles(id, first_name, last_name, avatar_url, created_at), '
+  //     'favorites(user_id)';
   static const String selectColumns =
-      '*, seller:profiles(id, first_name, last_name, avatar_url, created_at), '
+      '*, seller:profiles!listings_seller_id_fkey(id, first_name, last_name, avatar_url, created_at), '
       'favorites(user_id)';
 
   static Listing fromRow(

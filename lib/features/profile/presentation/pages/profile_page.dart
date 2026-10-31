@@ -12,6 +12,8 @@ import 'package:loqta/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:loqta/features/profile/domain/repositories/profile_repository.dart';
 import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:loqta/features/settings/presentation/pages/settings_page.dart';
+import 'package:loqta/features/chat/domain/services/image_picker_service.dart';
+import 'package:loqta/features/profile/presentation/bloc/profile_bloc.dart';
 
 /// Screen 18 — Profile, and the fifth main-navigation destination.
 ///
@@ -170,7 +172,9 @@ class ProfileView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.deleteAccount),
-        content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -187,6 +191,72 @@ class ProfileView extends StatelessWidget {
       // In a real app we would call the actual delete account method here.
       // Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const DeleteAccountPage()));
     }
+  }
+}
+
+Future<void> _showAvatarOptions(BuildContext context) async {
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ListTile(
+              title: Text(
+                'Profile photo',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a photo'),
+              onTap: () => Navigator.pop(sheetContext, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(sheetContext, 'gallery'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Use default avatar'),
+              onTap: () => Navigator.pop(sheetContext, 'default'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  if (action == null || !context.mounted) return;
+
+  if (action == 'default') {
+    context.read<ProfileBloc>().add(const ProfilePhotoRemoved());
+    return;
+  }
+
+  try {
+    final imagePicker = context.read<ImagePickerService>();
+
+    final image = action == 'camera'
+        ? await imagePicker.takePhoto()
+        : await imagePicker.pickImage();
+
+    if (!context.mounted || image == null) return;
+
+    context.read<ProfileBloc>().add(ProfilePhotoSelected(image));
+  } on ImagePickException catch (error) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(error.message)));
+  } catch (_) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not select the profile photo.')),
+    );
   }
 }
 
@@ -224,7 +294,11 @@ class _ProfileCard extends StatelessWidget {
     final palette = context.loqtaColors;
     final strings = context.l10n;
     final profile = state.profile;
+    final firstName = profile?.firstName?.trim() ?? '';
+    final lastName = profile?.lastName?.trim() ?? '';
 
+    final fullName = '$firstName $lastName'.trim();
+    final displayName = fullName.isEmpty ? 'Loqta member' : fullName;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
       decoration: BoxDecoration(
@@ -247,14 +321,18 @@ class _ProfileCard extends StatelessWidget {
               ),
             )
           else
-            UserAvatar(
-              name: profile?.displayName ?? '',
-              imageUrl: profile?.avatarUrl,
-              size: 92,
+            InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => _showAvatarOptions(context),
+              child: UserAvatar(
+                name: displayName,
+                imageUrl: profile?.avatarUrl,
+                size: 92,
+              ),
             ),
           const SizedBox(height: 12),
           Text(
-            profile?.displayName ?? '',
+            displayName,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

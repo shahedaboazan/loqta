@@ -97,6 +97,32 @@ class ImagePickerDataSource implements ImagePickerService {
     return images;
   }
 
+  @override
+  Future<PickedImage?> takePhoto() async {
+    final XFile? file;
+
+    try {
+      file = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: _maxEdge,
+        maxHeight: _maxEdge,
+        imageQuality: 85,
+      );
+    } on PlatformException catch (error) {
+      throw ImagePickException(_messageFor(error));
+    } on MissingPluginException {
+      throw const ImagePickException(
+        'Camera is not available on this platform.',
+      );
+    } catch (_) {
+      throw const ImagePickException('The camera could not be opened.');
+    }
+
+    if (file == null) return null;
+
+    return _read(file);
+  }
+
   Future<PickedImage> _read(XFile file) async {
     final Uint8List bytes;
     try {

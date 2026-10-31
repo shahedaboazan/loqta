@@ -32,11 +32,13 @@ class ImagePickException implements Exception {
 /// Declared in the domain layer and implemented in the data layer so the
 /// presentation layer depends on the capability, not on the plugin.
 abstract class ImagePickerService {
+
   /// Returns the chosen image, or null when the user cancelled.
   ///
   /// Throws [ImagePickException] when the platform refused access, has no
   /// photo library, or the file could not be read.
   Future<PickedImage?> pickImage();
+  Future<PickedImage?> takePhoto();
 
   /// Returns every image the user chose in one go, or an empty list when they
   /// cancelled.

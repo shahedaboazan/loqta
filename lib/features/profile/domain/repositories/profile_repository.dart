@@ -1,5 +1,7 @@
 import 'package:loqta/features/profile/domain/entities/user_profile.dart';
 
+import 'dart:typed_data';
+
 /// Reads and writes the signed-in user's own profile row.
 ///
 /// Writes are always scoped to the authenticated user by the `profiles_update_
@@ -11,6 +13,11 @@ abstract interface class ProfileRepository {
   /// Returns null when no row exists yet. Throws [ProfileFailure] on a transport
   /// or permission error, which the BLoC maps to a user-visible message.
   Future<UserProfile?> fetchCurrentProfile();
+  Future<UserProfile?> updateAvatar(String? avatarUrl);
+  Future<String> uploadAvatarImage({
+    required Uint8List bytes,
+    required String fileName,
+  });
 
   /// Persists the editable profile fields.
   ///

@@ -124,7 +124,7 @@ Listing _listing({
     imageUrls: const [],
     governorate: 'Damascus',
     area: '',
-    status: ListingStatus.active,
+    status: ListingStatus.available,
     createdAt: DateTime(2026, 1, 1),
   );
 }
